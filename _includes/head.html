@@ -7,7 +7,8 @@
       tex2jax: {
         skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
         inlineMath: [['$','$']]
-      }
+      },
+      "HTML-CSS": { scale: 90, linebreaks: { automatic: true } },
     });
   </script>
   <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
@@ -18,4 +19,8 @@
   {%- if jekyll.environment == 'production' and site.google_analytics -%}
     {%- include google-analytics.html -%}
   {%- endif -%}
+  <style>
+    h3 { margin-top: 35px; }
+    blockquote { font-size: 100%; }
+  </style>
 </head>
