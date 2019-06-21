@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "When and Why does King - Man + Woman = Queen? (ACL 2019)"
-date:   2019-06-08
+date:   2019-06-21
 author: Kawin Ethayarajh 
 paper-link: http://arxiv.org/abs/1810.04882
 link-text: (see paper)
@@ -50,13 +50,13 @@ In order to meaningfully interpret the conditions above, we need to be able to i
 
 However, the literature only tells us how to interpret the inner product of a word and context vector. Recall that SGNS and GloVe create two representations for each word -- one for when it is the target word and one for when it is a context word (i.e., in the context window of some other word). The latter representation, called the *context vector*, is typically discarded after training. 
 
-We can interpret the inner product of a word and context vector because even though SGNS and GloVe learn vectors iteratively in practice, they are implicitly factorizing a word-context matrix containing a co-occurrence statistic. This means that if the factorized matrix can be perfectly reconstructed, where $\vec{x}, \vec{y}$ are word vectors and $\vec{x}_c, \vec{y}_c$ their corresponding context vectors:
+We can interpret the inner product of a word and context vector because even though SGNS and GloVe learn vectors iteratively in practice, they are implicitly factorizing a word-context matrix containing a co-occurrence statistic. When the factorized matrix can be perfectly reconstructed, where $\vec{x}, \vec{y}$ are word vectors and $\vec{x}_c, \vec{y}_c$ their corresponding context vectors:
 
 $$\text{GloVe}: \langle \vec{x}, \vec{y}_c \rangle = \log X_{x,y} - b_x - b_y$$
 
 $$\text{SGNS}: \langle \vec{x}, \vec{y}_c \rangle = \text{PMI}(x,y) - \log k$$
 
-The first identity is the local objective of [GloVe](https://nlp.stanford.edu/pubs/glove.pdf), where $X_{x,y}$ denotes the co-occurrence count and $b_x, b_y$ denote the learned biases for each word. The second identity is from [Levy and Goldberg](https://papers.nips.cc/paper/5477-neural-word-embedding-as-implicit-matrix-factorization.pdf), who showed that SGNS is implicitly factorizing the word-context PMI matrix shifted by log $k$, the number of negative examples. Since the matrix being factorized is symmetric, $\langle \vec{x}, \vec{y}_c \rangle = \langle \vec{x}_c, \vec{y} \rangle$. 
+The first identity is the local objective of [GloVe](https://nlp.stanford.edu/pubs/glove.pdf), where $X_{x,y}$ denotes the co-occurrence count and $b_x, b_y$ denote the learned biases for each word. The second identity is from [Levy and Goldberg](https://papers.nips.cc/paper/5477-neural-word-embedding-as-implicit-matrix-factorization.pdf), who showed that SGNS is implicitly factorizing the [pointwise mutual information (PMI)](https://en.wikipedia.org/wiki/Pointwise_mutual_information) matrix of the word-context pairs shifted by log $k$, the number of negative examples. Since the matrix being factorized is symmetric, $\langle \vec{x}, \vec{y}_c \rangle = \langle \vec{x}_c, \vec{y} \rangle$. 
 
 #### Analogies in the Context Space
 
@@ -111,7 +111,7 @@ By introducing the idea of a *null word* $\emptyset$, which maps to the zero vec
 
 $$ p(x) > p(y) \iff \text{csPMI}(z,y) > \text{csPMI}(z,x)$$
 
-In other words, the addition of two SGNS vectors automatically downweights the more frequent word, as weighting schemes (e.g., [SIF](http://www.offconvex.org/2018/06/17/textembeddings/), TF-IDF) do *ad hoc*. For example, if the vectors for $x =$ *‘the’* and $y =$ *‘apple’* were added to create a vector for $z =$ *‘the apple’*, we'd expect csPMI(*‘the apple’, ‘apple’*) > csPMI(*‘the apple’, ‘the’*); since *'the'* is a very common word, it would be down-weighted. This helps explain the surprising effectiveness of composing words by [averaging their vectors](https://www.cs.cmu.edu/~jwieting/wieting2016ICLR.pdf).
+This suggests that the addition of two SGNS vectors implicitly downweights the more frequent word, as weighting schemes (e.g., [SIF](http://www.offconvex.org/2018/06/17/textembeddings/), TF-IDF) do *ad hoc*. For example, if the vectors for $x =$ *‘the’* and $y =$ *‘apple’* were added to create a vector for $z =$ *‘the_apple’*, and if this were actually a term in the vocabulary, we'd expect csPMI(*‘the_apple’, ‘apple’*) > csPMI(*‘the_apple’, ‘the’*). Although, in reality, most bigrams are not terms in the vocabulary, this helps explain [empirical observations](https://www.cs.cmu.edu/~jwieting/wieting2016ICLR.pdf) that averaging word vectors is a surprisingly effective way of composing them.
 
 #### Interpreting Euclidean Distance
 
@@ -139,7 +139,7 @@ In the table above, we can see that
 
 2. Similar analogies, such as *capital-world* and *capital-common-countries*, have similar mean csPMI values. Our theory implies this, since similar analogies have similar translation vectors.
 
-3. 	As the mean csPMI changes, the type of analogy also changes, from geography (<span style="color:red">red</span>) to verb tense (<span style="color:purple">purple</span>) to adjectives (<span style="color:blue">blue</span>). The only outlier, *currency*, has a very high csPMI variance, 	very low accuracy, and word pairs that rarely co-occur in Wikipedia. Also note that while analogies correspond neatly to the mean csPMI, they have no relation to the mean PMI.
+3. 	The change in mean csPMI mirrors a change in the type of analogy, from geography (<span style="color:red">red</span>) to verb tense (<span style="color:purple">purple</span>) to adjectives (<span style="color:blue">blue</span>). The only outlier, *currency*, has a very high csPMI variance, 	very low accuracy, and word pairs that rarely co-occur in Wikipedia. Also note that while analogies correspond neatly to the mean csPMI, they have no relation to the mean PMI.
 
 #### Euclidean Distance and csPMI
 
@@ -158,6 +158,6 @@ In a noiseless SGNS or GloVe space, a linear analogy holds exactly over a set of
 
 This, in turn, reaffirms the long-standing intuition on why word analogies hold, helps explain why vector addition is a decent means of composing words, and provides a new interpretation of Euclidean distance in word vector spaces. Unlike past theories of word analogy arithmetic, there is plenty of empirical evidence to support the csPMI Theorem, making it much more tenable.
 
-Many thanks to Omer Levy and Yoav Goldberg for their helpful comments on an early draft of this paper, as well as the anonymous ACL reviewers.
+Many thanks to Omer Levy and Yoav Goldberg for their helpful comments on an early draft of this paper, as well as the anonymous ACL reviewers. Special thanks to Graeme Hirst, Krishnapriya Vishnubhotla, Chloe Pou-Prom, and Allen Nie for their comments on this blog post.
 
 
