@@ -27,7 +27,7 @@ The [latent variable model](https://arxiv.org/abs/1502.03520) (Arora et al., 201
 
 The [paraphrase model](https://www.aclweb.org/anthology/P17-1007) (Gittens et al., 2017) contends that context words $C = \\{ c_1 , ..., c_m \\}$ are semantically equivalent to a single word $c$ if $p(w\|c_1,...,c_m) = p(w\|c)$. If word frequencies have a uniform distribution, the paraphrase of $C$ can be written as a sum of its context vectors; vector arithmetic corresponds to inclusion or exclusion in this set. However, the authors themselves acknowledge that this assumption is unrealistic: word frequencies follow a Zipf distribution, which is far from uniform. 
 
-A [more recent paper](https://arxiv.org/pdf/1901.09813.pdf) (Allen and Hospedales, 2019) tries to work around this assumption but ignores the effect of negative sampling in SGNS, even incorrectly stating that it has a "detrimental effect" on word embeddings. The authors do not prove that their theory extends to GloVe either; they only conjecture that it does. Most importantly, neither work on the paraphrase model provides *any* sort of empirical evidence in support of their theory.
+A [more recent paper](https://arxiv.org/pdf/1901.09813.pdf) (Allen and Hospedales, 2019) tries to work around this assumption but ignores the effect of negative sampling in SGNS, even incorrectly stating that it has a "detrimental effect" on word embeddings. The authors do not prove that their theory extends to GloVe either; they only conjecture that it does. Most importantly, neither work on the paraphrase model provides *any* empirical evidence in support of their theory.
 
 ### The Structure of Word Analogies
 
