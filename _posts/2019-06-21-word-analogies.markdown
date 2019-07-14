@@ -27,7 +27,7 @@ The [latent variable model](https://arxiv.org/abs/1502.03520) (Arora et al., 201
 
 The [paraphrase model](https://www.aclweb.org/anthology/P17-1007) (Gittens et al., 2017) contends that context words $C = \\{ c_1 , ..., c_m \\}$ are semantically equivalent to a single word $c$ if $p(w\|c_1,...,c_m) = p(w\|c)$. If word frequencies have a uniform distribution, the paraphrase of $C$ can be written as a sum of its context vectors; vector arithmetic corresponds to inclusion or exclusion in this set. However, the authors themselves acknowledge that this assumption is unrealistic: word frequencies follow a Zipf distribution, which is far from uniform. 
 
-A [more recent paper](https://arxiv.org/pdf/1901.09813.pdf) (Allen and Hospedales, 2019) tries to work around this assumption but ignores the effect of negative sampling in SGNS, even incorrectly stating that it has a "detrimental effect" on word embeddings. The authors do not prove that their theory extends to GloVe either; they only conjecture that it does. Most importantly, neither work on the paraphrase model provides *any* empirical evidence in support of their theory.
+A [more recent paper](https://arxiv.org/pdf/1901.09813.pdf) (Allen and Hospedales, 2019) tries to work around this assumption by claiming that error terms are small when operating on paraphrases. However, the paper disregards the effect of negative sampling in SGNS, even incorrectly stating that it has a "detrimental effect". The proposed theory is not viable because the error term would otherwise scale with the number of negative samples, making it too large. The authors do not prove that their theory extends to GloVe either; they only conjecture that it does. Most importantly, neither work on the paraphrase model provides *any* empirical evidence in support of the theory.
 
 ### The Structure of Word Analogies
 
@@ -67,7 +67,7 @@ Using these identities and the symmetry of the factorized word-context matrix, w
 > <span style="font-style: normal; letter-spacing: 0px; color: black"> A linear analogy $f : \vec{x} \mapsto \vec{x} + \vec{r}$ holds over ordered pairs $S$ in an SGNS or GloVe word space with no reconstruction error iff $\exists\ \lambda \in \mathbb{R}, g: \vec{x}_c \mapsto \vec{x}_c + \lambda \vec{r}$ holds over $S$ in the corresponding context space.
 </span>
 
-This means that we can write $$\| \vec{x} - \vec{y} \|^2$$ as the inner product of $\vec{x} - \vec{y}$ and $\vec{x}_c - \vec{y}_c$ scaled by $1/\lambda$, making it much more interpretable.
+This theoretical finding concurs with prior [empirical](https://www.aclweb.org/anthology/D17-1308) and [theoretical](https://papers.nips.cc/paper/7368-on-the-dimensionality-of-word-embedding.pdf) work. Most work often assumes $\lambda$ \approx 1$ in practice, which we find to be true as well. This finding allows us to write $$\| \vec{x} - \vec{y} \|^2$$ as the inner product of $\vec{x} - \vec{y}$ and $\vec{x}_c - \vec{y}_c$ scaled by $1/\lambda$, making it much more interpretable.
 
 ### When do Linear Word Analogies Hold?
 
