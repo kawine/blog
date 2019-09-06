@@ -12,6 +12,7 @@
     });
   </script>
   <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+  <link href="https://fonts.googleapis.com/css?family=Noto+Serif&display=swap" rel="stylesheet"> 
 
   {%- seo -%}
   <link rel="stylesheet" href="{{ "/assets/main.css" | relative_url }}">
@@ -20,11 +21,44 @@
     {%- include google-analytics.html -%}
   {%- endif -%}
   <style>
-    h3 { 
-      margin-top: 35px; 
+    .post-title {
+      font-family: "Noto Serif";
+      font-size: 38px;
+      margin-top: 16%;
+      line-height: 38pt;
     }
+
+    .site-title {
+      font-family: "Noto Serif";
+      font-size: 125%;
+    }
+
+    h3 { 
+      margin-top: 50px; 
+    }
+
+    h4, h5 {
+      margin-top: 22px;
+    }
+
+    h3, h4, h5 {
+      font-family: "Noto Serif";
+      font-weight: 600;
+    }
+
     .post-list h3 { margin-top: 10px !important; }
-    blockquote { font-size: 100%; }
+
+    blockquote { 
+      font-size: 100%; 
+    }
+
+    body {
+      background-color: #fcfcf7
+    }
+
+    .small-text, .footnotes {
+      font-size: 85%;
+    }
   </style>
 
   <!-- Global site tag (gtag.js) - Google Analytics -->
