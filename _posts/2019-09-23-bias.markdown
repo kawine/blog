@@ -1,0 +1,168 @@
+---
+layout: post
+title:  "What causes bias in word embedding associations?"
+date:   2019-09-23
+author: Kawin Ethayarajh 
+paper-link: https://www.aclweb.org/anthology/P19-1166
+link-text: (see paper)
+categories: NLP
+---
+Word vectors are often criticized for capturing undesirable associations such as gender stereotypes. For example, according to the [word embedding association test (WEAT)](https://arxiv.org/abs/1608.07187), relative to art-related terms, science-related ones are significantly more associated with male attributes. 
+
+But what exactly is to blame? Biased training data, the embedding model itself, or just noise? Moreover, how effectively can we *debias* these embeddings? What theoretical guarantee is there, for example, that the [subspace projection method](https://papers.nips.cc/paper/6228-man-is-to-computer-programmer-as-woman-is-to-homemaker-debiasing-word-embeddings.pdf) for debiasing embeddings actually works? 
+
+In our ACL 2019 paper, ["Understanding Undesirable Word Embedding Associations"](https://www.aclweb.org/anthology/P19-1166), we answer some of these open questions. Specifically, we show that:
+
+1. Debiasing skipgram and GloVe vectors using the subspace projection method [(Bolukbasi et al., 2016)](https://papers.nips.cc/paper/6228-man-is-to-computer-programmer-as-woman-is-to-homemaker-debiasing-word-embeddings.pdf) is, *under certain conditions*[^2], equivalent to  training on an unbiased corpus.
+
+2. WEAT, the most common association test for word embeddings, can be easily "hacked" to claim that there is bias (i.e., a statistically significant association in a particular direction).
+
+3. The **relational inner product association (RIPA)** is a much more robust alternative to WEAT. 
+
+	Experiments with RIPA reveal that on average, skipgram does *not* make the vast majority of words any more gendered in the vector space than they are in the training corpus; individual words may be slightly more or less gendered due to noise.
+
+	However, for words that are gender-stereotyped (e.g., 'nurse') or gender-specific by definition (e.g., 'queen'), skipgram actually amplifies the gender association in the corpus.
+
+
+### Provably Debiasing Embeddings
+
+To debias word embeddings using the subspace projection method [(Bolukbasi et al., 2016)](https://papers.nips.cc/paper/6228-man-is-to-computer-programmer-as-woman-is-to-homemaker-debiasing-word-embeddings.pdf), we need to define a "bias subspace" in the embedding space and then subtract from each word vector its projection on this subspace. The inventors of this method created the bias subspace by taking the first principal component of ten gender-defining relation vectors (e.g., $\vec{\textit{man}} - \vec{\textit{woman}}$). 
+
+To make any assertion about whether these debiased embeddings are actually unbiased, we need to first define what *unbiasedness* is. We do so by noting that although GloVe and skipgram learn vectors iteratively in practice, they are implicitly factorizing a word-context matrix containing a co-occurrence statistic[^3].
+
+> <span style="font-style: normal; letter-spacing: 0px; color: black"> Let $M$ denote the symmetric word-context matrix for a given training corpus that is implicitly factorized by the embedding model. Let $S$ denote a set of word pairs. </span>
+> * <span style="font-style: normal; letter-spacing: 0px; color: black"> A word $w$ is **unbiased** with respect to $S$ iff $\forall\, (x,y) \in S, M_{w,x} = M_{w,y}$. </span>
+> * <span style="font-style: normal; letter-spacing: 0px; color: black"> $M$ is unbiased with respect to $S$ iff $\forall\, w \not \in S$, $w$ is unbiased. A word $w$ or matrix $M$ is **biased** wrt $S$ iff it is not unbiased wrt $S$. </span>
+
+For example, the entire corpus would be unbiased with respect to \{('male', 'female')\} iff $M_{\textit{w}, \text{male}}$ and $M_{\textit{w}, \text{female}}$ were interchangeable for any word $w$. Since $M$ is a word-context matrix, unbiasedness effectively means that the elements for ($w$, 'male') and ($w$, 'female') in $M$ can be switched without any impact on the word embeddings. Using this definition of unbiasedness, we prove the following:
+
+> <span style="font-style: normal; letter-spacing: 0px; color: black"> **Debiasing Theorem** </span> 
+>
+> <span style="font-style: normal; letter-spacing: 0px; color: black"> For a set of word pairs $S$, let the bias subspace $B = \text{span}(\\{ \vec{x} - \vec{y}\, |\, (x,y) \in S\\})$. For every word $w \not \in S$, let the debiased word vector $$\vec{w_d} \triangleq \vec{w} - \text{proj}_B \vec{w}$$. </span>
+> 
+> <span style="font-style: normal; letter-spacing: 0px; color: black"> For any embedding model that implicitly factorizes $M$ into a word matrix $W$ and a context matrix $C$, the reconstructed word-context matrix $W_d C^T = M_d$ is unbiased with respect to $S$. </span>
+
+
+#### Lipstick on a Pig?
+
+Although the subspace projection method is widely used for debiasing, [Gonen and Goldberg (2019)](https://arxiv.org/abs/1903.03862) observed that, in practice, gender can still be recovered from a "debiased" embedding space. 
+
+How can we reconcile this empirical observation with our theoretical findings above?
+
+- In practice, the bias subspace $B$ is defined as the first principal component of $\\{ \vec{x} - \vec{y}\ \|\ (x,y) \in S\\}$ instead of their span. The Debiasing Theorem is only applicable when $B$ is the span.
+
+- 	The word pairs $S$ are not exhaustive; they rarely contain all the directions in embedding space that capture gender. For example, if 
+
+	$$\vec{\textit{man}} - \vec{\textit{woman}} \not= \vec{\textit{policeman}} - \vec{\textit{policewoman}}$$
+
+	and \{('policeman', 'policewoman')\} $ \not\in S$, then the debiased word embeddings won't be unbiased with respect to \{('policeman', 'policewoman')\}. This would result in there being at least one direction in embedding space from which we could recover gender bias.
+
+Though there are likely other factors at play, if only for these reasons, it is not surprising that what Gonen and Goldberg call the "lipstick-on-a-pig" problem persists in debiased embedding spaces.
+
+
+### Hacking WEAT
+
+WEAT [(Caliskan et al., 2016)](https://arxiv.org/abs/1608.07187) is the most common test of bias in word embedding associations. In brief, it answers the following question: where relatedness is cosine similarity, are **target words** $T_1$ more associated with **attribute words** $X$ than $Y$, relative to target words $T_2$?
+
+For example, are science-related terms more associated with male attributes and art-related terms with female ones? According to the [paper](https://arxiv.org/abs/1608.07187) that proposed WEAT, *yes, they are*.
+
+However, reasonable minds can disagree as to what exactly these 'male' and 'female' attribute sets should be. While it's easy to construct many different -- but equally valid -- sets for each attribute, the choice of attribute set can lead to wildly different outcomes. We find that it is easy to contrive this selection to achieve a desired outcome, whether that is a statistically significant association in a particular direction (i.e., bias) or no significant association at all (i.e., no bias).
+
+For example, is the word 'door' more male- than female-associated, relative to the word 'curtain'? 
+
+We'd think not, but according to WEAT, *it depends on the attribute sets*.
+
+<p align="center">
+	<img src="{{ site.url }}/blog/assets/bias_table_transparent.png" style="width: 100%; margin: 5px 0px 5px -10px">
+</p>
+
+
+### Introducing RIPA
+
+We propose a more robust alternative to WEAT:
+
+> <span style="font-style: normal; letter-spacing: 0px; color: black"> The <b>relational inner product association (RIPA)</b> of a word $w$ with respect to a relation vector $\vec{b}$ is $\beta(\vec{w}; \vec{b}) = \langle \vec{w}, \vec{b} \rangle$, where  </span>
+> 
+> - <span style="font-style: normal; letter-spacing: 0px; color: black"> $S$ is a non-empty set of ordered word pairs $(x,y)$ that define the association </span>
+> - <span style="font-style: normal; letter-spacing: 0px; color: black"> $\vec{b}$ is the first principal component of $\\{ \vec{x} - \vec{y}\ \|\ (x,y) \in S\\}$ </span>
+
+For example, if you wanted to calculate the genderedness of the word 'door', you would:
+
+1. Take the first principal component of $\vec{\textit{man}} - \vec{\textit{woman}}$, $\vec{\textit{king}} - \vec{\textit{queen}}$, etc. Call this $\vec{b}$.
+2. Calculate the dot product of $\vec{b}$ and $\vec{\textit{door}}$.
+
+#### Why use RIPA?
+
+RIPA is derived from the subspace projection method and is easy to calculate. Other than its simplicity, it has three advantages:
+
+- It is more robust to the choice of word pairs that define the association than WEAT is to its attribute word sets. Using ('male', 'female') instead of ('man', 'woman') to define the gender relation vector, for example, would have a negligible impact on $\vec{b}$.
+
+- 	If only a single word pair $(x,y)$ defines the association, then the relation vector $\vec{b} = (\vec{x} - \vec{y}) / \| \vec{x} - \vec{y} \|$, making RIPA highly interpretable. For example, for skipgram with negative sampling (SGNS), RIPA has the following statistical interpretation:
+
+	$$ \beta_{\text{SGNS}}(\vec{w}; \vec{b}) = \frac{1/\sqrt{\lambda}}{\sqrt{-\text{csPMI}(x,y) + \alpha}} \log \frac{p(w|x)} {p(w|y)} $$
+
+	where csPMI refers to the co-occurrence shifted PMI[^4], and $\lambda \approx 1, \alpha \approx -1$ in practice.
+
+- 	An obstacle to using any debiasing method is identifying which words we want to debias; we should debias 'doctor' but not 'king', for example, because the latter is gender-specific by definition. We propose a simple heuristic: debias a word $w$ iff
+
+	$$| \beta(\vec{w}; \vec{b_{\text{actual}}}) | < | \beta(\vec{w}; \vec{b_{\text{stereo}}}) | $$
+
+	where $\vec{b_{\text{actual}}}$ is created using gender-defining pairs such as ('man', 'woman') and $\vec{b_{\text{stereo}}}$ is created using gender-stereotypical pairs such as ('doctor', 'midwife').
+
+	Compared to [Bolukbasi et al.'s (2016)](https://papers.nips.cc/paper/6228-man-is-to-computer-programmer-as-woman-is-to-homemaker-debiasing-word-embeddings.pdf) supervised approach for finding which words to debias, our simple heuristic works much better.[^5] Note that we don't change the debiasing method at all -- we only change the selection of *which words* to debias.
+
+
+### Breaking Down Bias
+
+Because RIPA has such a clear statistical interpretation for skipgram with negative sampling (SGNS), we can compare the genderedness in embedding space with the genderedness in the corpus to figure out $\Delta_g$, the change induced by the embedding model. 
+
+For example, if the relation vector $\vec{b}$ were defined only by the pair ('man', 'woman'), then
+
+- the genderedness of word $w$ in the SGNS vector space would be 
+	
+	$$ g(w; \textit{'man'}, \textit{'woman'}) = \frac{\langle \vec{w}, \vec{\textit{man}} - \vec{\textit{woman}} \rangle}{\|\ \vec{\textit{man}} - \vec{\textit{woman}}\ \| }$$
+
+- the genderedness of word $w$ in the corpus (a.k.a., RIPA in a noiseless SGNS space) would be[^6]:
+
+	$$ \hat{g}(w; \textit{'man'}, \textit{'woman'}) = \frac{1/\sqrt{\lambda}}{\sqrt{-\text{csPMI}(\textit{'man'}, \textit{'woman'}) + \alpha}} \log \frac{p(w|\textit{'man'})} {p(w|\textit{'woman'})} $$
+
+We measure the **change in absolute genderedness** because some words may be more gendered in the embedding space than in the corpus, but in the opposite direction. In the paper, we estimate $\Delta_g$ with not just ('man', 'woman'), but several other gender-defining word pairs. 
+
+<p align="center">
+	<img src="{{ site.url }}/blog/assets/bias_breakdown_transparent.png" style="width: 100%; margin: 5px 0px 5px -10px">
+</p>
+
+As shown in red in the last row, gender-neutral[^7] words, which comprise the vast majority of words in the vocabulary, are on average no more gendered in the embedding space than in the corpus. However, due to noise, *individual words* may be slightly more or less gendered in vector space. 
+
+In contrast, words that are gender-specific by definition and -- to a slightly lesser extent -- those that are associated with gender stereotypes are on average significantly more gendered in embedding space than in the training corpus. In the paper, we explore some theories for why this is the case.
+
+
+### Conclusion
+
+Only gender-specific and gender-biased words are on average more gendered in embedding space than in the training corpus; the vast majority of words are not. Because WEAT can systematically over-estimate bias -- due to its design -- we recommend using RIPA in its place.
+
+Once bias is identified, debiasing via subspace projection can, under certain conditions, be provably effective. However, these conditions are difficult to satisfy in practice, leading to some bias persisting in "debiased" embedding spaces. As NLP moves away from static embeddings to Transformer-based language models (e.g., BERT), leaving out training data responsible for undesirable associations (see [Brunet et al., 2018](https://arxiv.org/pdf/1810.03611.pdf)) will likely be a more viable strategy than explicitly debiasing representations.
+
+<!-- 
+##### Acknowledgements
+
+<p class="small-text"> 
+Many thanks to Omer Levy and Yoav Goldberg for their helpful comments on an early draft of this paper, as well as the anonymous ACL reviewers. Special thanks to Graeme Hirst, Krishnapriya Vishnubhotla, Chloe Pou-Prom, and Allen Nie for their comments on this blog post.
+</p>
+ -->
+##### Footnotes
+
+[^1]: These areas include, but are not limited to: [language translation](https://arxiv.org/abs/1906.00591), [dependency parsing](https://www.aclweb.org/anthology/P19-1339/), and [coreference resolution](https://arxiv.org/abs/1804.06876).
+
+[^2]: These conditions are difficult to satisfy perfectly in practice, however, which allows some bias to persist in the debiased embedding space. This may partially explain the lipstick-on-a-pig problem identified by [Gonen and Goldberg (2019)](https://arxiv.org/abs/1903.03862).
+
+[^3]: For details about the implicit factorization done by skipgram and GloVe, refer to [Levy and Goldberg (2014)](https://papers.nips.cc/paper/5477-neural-word-embedding-as-implicit-matrix-factorization.pdf) and [Pennington et al. (2014)](https://nlp.stanford.edu/pubs/glove.pdf) respectively.
+
+[^4]: See my [previous blog post](https://kawine.github.io/blog/nlp/2019/06/08/word-analogies.html) for a more detailed discussion of the co-occurrence shifted PMI.
+
+[^5]: For a fair comparison with the supervised approach, we use the methodology in [Bolukbasi et al. (2016)](https://papers.nips.cc/paper/6228-man-is-to-computer-programmer-as-woman-is-to-homemaker-debiasing-word-embeddings.pdf) regarding gendered word analogies for evaluating the usefulness of the RIPA-based heuristic. However, the focus of our paper is on bias in word embedding associations, not word analogies.
+
+[^6]: As stated earlier, the csPMI refers to the co-occurrence shifted PMI[^4], and $\lambda \approx 1, \alpha \approx -1$ in practice.
+
+[^7]: We identified gender-appropriate (e.g., 'king') and gender-biased (e.g, 'nurse') words by plucking them from the gender-appropriate and gender-biased word analogies provided in [Bolukbasi et al. (2016)](https://papers.nips.cc/paper/6228-man-is-to-computer-programmer-as-woman-is-to-homemaker-debiasing-word-embeddings.pdf). These analogies were constructed with the help of crowdworkers (actual humans). We considered all words that did not fall into these categories to be gender-neutral -- neither gender-specific by definition nor associated with any gender stereotypes. See the paper for more details.
+
