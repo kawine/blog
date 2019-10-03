@@ -95,7 +95,7 @@ RIPA generalizes [Bolukbasi et al.'s (2016)](https://papers.nips.cc/paper/6228-m
 
 RIPA is derived from the subspace projection method and is easy to calculate. Other than its simplicity, it has three advantages:
 
-- It is more robust to the choice of word pairs that define the association than WEAT is to its attribute word sets. Using ('male', 'female') instead of ('man', 'woman') to define the gender relation vector, for example, would have a negligible impact on $\vec{b}$.
+- It is more robust to the choice of word pairs that define the association than WEAT is to its attribute word sets. Using ('male', 'female') instead of ('man', 'woman') to define the gender relation vector, for example, would have a negligible impact on $\vec{b}$. While RIPA is not completely immune to such changes, because of how the relation vector is defined, it is more robust than WEAT.
 
 - 	If only a single word pair $(x,y)$ defines the association, then the relation vector $\vec{b} = (\vec{x} - \vec{y}) / \| \vec{x} - \vec{y} \|$, making RIPA highly interpretable. For example, for skipgram with negative sampling (SGNS), RIPA has the following statistical interpretation:
 
