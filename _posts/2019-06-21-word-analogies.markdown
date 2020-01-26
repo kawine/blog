@@ -23,6 +23,7 @@ In our ACL 2019 paper, ["Towards Understanding Linear Word Analogies"](http://ar
 
 Most importantly, our theory is also supported by empirical evidence, making it much more tenable than past explanations.
 
+
 ### The Structure of Word Analogies
 
 In the broadest sense, a word analogy is a statement of the form *"a is to b as x is to y"*, which asserts that *a* and *x* can be transformed in the same way to get *b* and *y*, and vice-versa. Given that this is just an invertible transformation, we can state it more formally: 
@@ -40,6 +41,7 @@ Parallelograms have several useful properties that we can exploit. For one, a qu
 
 > <span style="font-style: normal; letter-spacing: 0px; color: black"> A linear word analogy holds exactly over a set of ordered word pairs $S$ iff $$\| \vec{x} - \vec{y} \|^2$$ is the same for every word pair, $$\| \vec{a} - \vec{x} \|^2 = \| \vec{b} - \vec{y} \|^2$$ for any two word pairs, and the vectors of all words in $S$ are coplanar.
 
+
 ### Interpreting Inner Products
 
 In order to meaningfully interpret the conditions above, we need to be able to interpret the inner product (i.e., the dot product) of two word vectors. 
@@ -54,14 +56,13 @@ $$\text{SGNS}: \langle \vec{x}, \vec{y}_c \rangle = \text{PMI}(x,y) - \log k$$
 
 The first identity is the local objective of [GloVe](https://nlp.stanford.edu/pubs/glove.pdf), where $X_{x,y}$ denotes the co-occurrence count and $b_x, b_y$ denote the learned biases for each word. The second identity is from [Levy and Goldberg (2014)](https://papers.nips.cc/paper/5477-neural-word-embedding-as-implicit-matrix-factorization.pdf), who showed that SGNS is implicitly factorizing the [pointwise mutual information (PMI)](https://en.wikipedia.org/wiki/Pointwise_mutual_information) matrix of the word-context pairs shifted by log $k$, the number of negative examples. Since the matrix being factorized is symmetric, $\langle \vec{x}, \vec{y}_c \rangle = \langle \vec{x}_c, \vec{y} \rangle$. 
 
-#### Analogies in the Context Space
-
 Using these identities and the symmetry of the factorized word-context matrix, we prove that any linear analogy $f$ that holds in the word space has a corresponding linear analogy $g$ that holds in the context space. More specifically:
 
 > <span style="font-style: normal; letter-spacing: 0px; color: black"> A linear analogy $f : \vec{x} \mapsto \vec{x} + \vec{r}$ holds over ordered pairs $S$ in an SGNS or GloVe word space with no reconstruction error iff $\exists\ \lambda \in \mathbb{R}, g: \vec{x}_c \mapsto \vec{x}_c + \lambda \vec{r}$ holds over $S$ in the corresponding context space.
 </span>
 
 This theoretical finding concurs with prior [empirical](https://www.aclweb.org/anthology/D17-1308) and [theoretical](https://papers.nips.cc/paper/7368-on-the-dimensionality-of-word-embedding.pdf) work. Most work often assumes $\lambda \approx 1$ in practice, which we find to be true as well. This finding allows us to write $$\| \vec{x} - \vec{y} \|^2$$ as the inner product of $\vec{x} - \vec{y}$ and $\vec{x}_c - \vec{y}_c$ scaled by $1/\lambda$, making it much more interpretable.
+
 
 ### When do Linear Word Analogies Hold?
 
@@ -84,15 +85,19 @@ For example, for $$\vec{king} - \vec{man} + \vec{woman} = \vec{queen}$$ to hold 
 * csPMI(*king*, *man*) = csPMI(*queen*, *woman*)
 * row vectors of the four words in the factorized word-context matrix to be coplanar
 
-#### Robustness to Noise
+
+### Robustness to Noise
 
 Note that the conditions above need to be satisfied for an analogy to hold **exactly** in a **noiseless** space. In practice, however, these conditions are rarely satisfied perfectly and linear word analogies do not hold exactly.
 
 Yet they are said to exist anyway -- why?
 
 1. The definition of vector equality is looser in practice. An analogy task (a,?)::(x,y) is solved by finding the word *closest* to $\vec{a} + \vec{y} - \vec{x}$ (excluding $\vec{a}, \vec{x}, \vec{y}$ as possible answers). The correct answer can be found even when it is not exact and does not lie on the plane defined by $\vec{a}, \vec{x}, \vec{y}$.
+
 2. Although the theorem assumes no reconstruction error for all word pairs, if we ignore the coplanarity constraint, only $\|S\|^2+2\|S\|$ pairs need to be recovered for $f$ to hold exactly over $S$.
+
 3. Analogies mostly hold over frequent word pairs, which are associated with less noise. For example, analogies of countries and their capitals, which have a median frequency of 3436.5 in Wikipedia, can be solved with 95.4% accuracy; analogies of countries and their currency, which have a median frequency of just 19, can only be solved with 9.2% accuracy.[^4]
+
 
 ### Implications
 
@@ -156,6 +161,21 @@ As expected, there is a moderately strong positive correlation (Pearson’s $r =
 In a noiseless SGNS or GloVe space, a linear analogy holds exactly over a set of word pairs iff  the co-occurrence shifted PMI is the same for every word pair and across any two word pairs, provided the row vectors of those words in the factorized word-context matrix are coplanar. 
 
 This, in turn, reaffirms the long-standing intuition on why word analogies hold, helps explain why vector addition is a decent means of composing words, and provides a new interpretation of Euclidean distance in word vector spaces. Unlike past theories of word analogy arithmetic, there is plenty of empirical evidence to support the csPMI Theorem, making it much more tenable.
+
+If you found this post useful, you can cite our paper as follows:
+
+	@inproceedings{ethayarajh-etal-2019-towards,
+    title = "Towards Understanding Linear Word Analogies",
+    author = "Ethayarajh, Kawin and Duvenaud, David and Hirst, Graeme",
+    booktitle = "Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics",
+    month = jul, year = "2019", address = "Florence, Italy",
+    publisher = "Association for Computational Linguistics",
+    url = "https://www.aclweb.org/anthology/P19-1315",
+    doi = "10.18653/v1/P19-1315",
+    pages = "3253--3262",
+	}
+
+
 
 ##### Acknowledgements
 
