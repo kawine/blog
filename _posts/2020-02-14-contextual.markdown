@@ -13,9 +13,9 @@ But just *how contextual* are these contextualized representations?
 
 Consider the word 'mouse'. It has multiple word senses, one referring to a rodent and another to a device. Does BERT effectively create one representation of 'mouse' per word sense? Or does BERT create infinitely many representations of 'mouse', each highly specific to its context? Does the level of context-specificity differ across layers of BERT?
 <p align="center">
-	<img src="{{ site.url }}/blog/assets/contextual_mouse_transparent_1.png" style="width: 46%">
+	<img src="{{ site.url }}/blog/assets/contextual/contextual_mouse_transparent_1.png" style="width: 46%">
 	&nbsp; vs. &nbsp;
-	<img src="{{ site.url }}/blog/assets/contextual_mouse_transparent_2.png" style="width: 46%">
+	<img src="{{ site.url }}/blog/assets/contextual/contextual_mouse_transparent_2.png" style="width: 46%">
 </p>
 
 In our EMNLP 2019 paper, ["How Contextual are Contextualized Word Representations?"](https://www.aclweb.org/anthology/D19-1006.pdf), we tackle these questions and arrive at some surprising conclusions:
@@ -53,16 +53,16 @@ When discussing contextuality, it is important to consider the isotropy of embed
 
 In both figures below, SelfSim('dog') = 0.95. On the left, isotropy is high: this suggests that 'dog' is poorly contextualized, since its representations are nearly identical across all contexts. The figure on the right -- which has low isotropy -- suggests the opposite: because *any two words have a cosine similarity > 0.95*, a self-similarity of 0.95 is relatively low, in which case 'dog' *is* highly contextualized!
 <p align="center">
-	<img src="{{ site.url }}/blog/assets/sphere_1.png" style="width: 30%">
+	<img src="{{ site.url }}/blog/assets/contextual/sphere_1.png" style="width: 30%">
 	&nbsp; vs. &nbsp;
-	<img src="{{ site.url }}/blog/assets/sphere_2.png" style="width: 30%">
+	<img src="{{ site.url }}/blog/assets/contextual/sphere_2.png" style="width: 30%">
 </p>
 To adjust for anisotropy, we calculate *anisotropic baselines* for each of our measures and subtract each baseline from the respective raw measure.[^3]
 
 But is it even necessary to adjust for anisotropy? Yes! As seen below, upper layers of BERT and GPT-2 are extremely anisotropic, suggesting that high anisotropy is inherent to -- or at least a consequence of -- the process of contextualization: 
 
 <p align="center">
-	<img src="{{ site.url }}/blog/assets/mean_cosine_similarity_across_words.png" style="width: 100%">
+	<img src="{{ site.url }}/blog/assets/contextual/mean_cosine_similarity_across_words.png" style="width: 100%">
 </p>
 
 
@@ -71,7 +71,7 @@ But is it even necessary to adjust for anisotropy? Yes! As seen below, upper lay
 **On average, contextualized representations are more context-specific in higher layers.** As seen below, the decrease in self-similarity is almost monotonic. This is analogous to how upper layers of LSTMs trained on NLP tasks learn more task-specific representations ([Liu et al., 2019](https://arxiv.org/abs/1903.08855)). GPT-2 is the most context-specific; representations in its last layer are almost maximally context-specific.
 
 <p align="center">
-	<img src="{{ site.url }}/blog/assets/self_similarity_above_expected.png" style="width: 100%">
+	<img src="{{ site.url }}/blog/assets/contextual/self_similarity_above_expected.png" style="width: 100%">
 </p>
 
 **Stopwords such as 'the' have among the lowest self-similarity (i.e., the most context-specific representations).** This suggests that the variety of contexts a word appears in, rather than its inherent polysemy, is what drives variation in its contextualized representations.  This suggests that ELMo, BERT, and GPT-2 are not simply assigning one representation per word sense; otherwise, there would not be so much variation in the representations of words with so few word senses.
@@ -79,7 +79,7 @@ But is it even necessary to adjust for anisotropy? Yes! As seen below, upper lay
 **Context-specificity manifests very differently in ELMo, BERT, and GPT-2.** As seen below, in ELMo, words in the same sentence are more similar to one  another in upper layers. In BERT, words in the same sentence are more dissimilar to one another in upper layers but are on average more similar to each other than two random words. In contrast, for GPT-2, word representations  in the same sentence are no more similar to each other than randomly sampled words. This suggests that BERT and GPT-2's contextualization are more nuanced than ELMo's, as they seem to recognize that words appearing in the same context do not necessarily have a similar meaning.
 
 <p align="center">
-	<img src="{{ site.url }}/blog/assets/mean_cosine_similarity_between_sentence_and_words.png" style="width: 100%">
+	<img src="{{ site.url }}/blog/assets/contextual/mean_cosine_similarity_between_sentence_and_words.png" style="width: 100%">
 </p>
 
 
@@ -92,7 +92,7 @@ But is it even necessary to adjust for anisotropy? Yes! As seen below, upper lay
 As seen below, for all three models, principal component embeddings created from lower layers are more effective than those created from upper layers. Those created using GPT-2 perform markedly worse than those from ELMo and BERT. Given that upper layers are much more context-specific than lower layers, and given that GPT-2’s representations are more context-specific, this suggests that principal components of less context-specific representations are more effective on these tasks.
 
 <p align="center">
-	<img src="{{ site.url }}/blog/assets/pc_static_embeddings.png" style="width: 100%">
+	<img src="{{ site.url }}/blog/assets/contextual/pc_static_embeddings.png" style="width: 100%">
 </p>
 
 
