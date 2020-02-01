@@ -11,7 +11,7 @@ Incorporating context into word embeddings - as exemplified by [BERT](https://ar
 
 But just *how contextual* are these contextualized representations?
 
-Consider the word 'mouse'. It has multiple word senses, one referring to a rodent and another to a device. Does BERT effectively create one representation of 'mouse' per word sense? Or does BERT create infinitely many representations of 'mouse', each highly specific to its context? Does the level of context-specificity differ across layers of BERT?
+Consider the word 'mouse'. It has multiple word senses, one referring to a rodent and another to a device. Does BERT effectively create one representation of 'mouse' per word sense? Or does BERT create infinitely many representations of 'mouse', each highly specific to its context?
 <p align="center">
 	<img src="{{ site.url }}/blog/assets/contextual/contextual_mouse_transparent_1.png" style="width: 46%">
 	&nbsp; vs. &nbsp;
@@ -20,11 +20,15 @@ Consider the word 'mouse'. It has multiple word senses, one referring to a roden
 
 In our EMNLP 2019 paper, ["How Contextual are Contextualized Word Representations?"](https://www.aclweb.org/anthology/D19-1006.pdf), we tackle these questions and arrive at some surprising conclusions:
 
-1. In all layers of BERT, ELMo, and GPT-2, contextualized word representations are *anisotropic*: they occupy a narrow cone in the embedding space instead of being distributed throughout.
+1. In all layers of BERT, ELMo, and GPT-2, the representations of *all words* are anisotropic: they occupy a narrow cone in the embedding space instead of being distributed throughout.
 
-2. In all three models, upper layers produce more context-specific representations than lower layers. However, intra-sentence similarity varies across models, suggesting that BERT, ELMo, and GPT-2 contextualize words very differently from one another.
+2. In all three models, upper layers produce more context-specific representations than lower layers; however, the models contextualize words very differently from one another. 
 
-3. On average, less than 5% of the variance in a word’s contextualized representations can be explained by their first principal component[^1]. Still, principal components of contextualized representations in lower layers of BERT outperform GloVe and FastText on static embedding benchmarks like solving word analogies![^2]
+3. If a word's contextualized representations were not at all contextual, we'd expect 100% of their variance to be explained by a static embedding. Instead, we find that - on average - less than 5% of the variance can be explained by a static embedding.[^1] 
+
+4. We can create a new type of static embedding for each word by taking the first principal component of its contextualized representations in a lower layer of BERT. Static embeddings created this way outperform GloVe and FastText on benchmarks like solving word analogies![^2]
+
+Going back to our example, this means that BERT creates highly context-specific representations of the word 'mouse' instead of creating one per word sense. Although any static embedding of 'mouse' would account for very little of the variance in its contextualized representations, if we picked the vector that *did* maximize the variance explained, we would get a static embedding that is better than the one provided by GloVe or FastText![^4]
 
 
 ### Measures of Contextuality
@@ -38,9 +42,13 @@ What does contextuality look like? Consider these two sentences:
 <span style="font-style: normal; letter-spacing: 0px; color: red">$\vec{dog}$</span> == <span style="font-style: normal; letter-spacing: 0px; color: green">$\vec{dog}$</span> implies that there is no contextualization (i.e., what we'd get with word2vec). 
 <span style="font-style: normal; letter-spacing: 0px; color: red">$\vec{dog}$</span> != <span style="font-style: normal; letter-spacing: 0px; color: green">$\vec{dog}$</span> implies that there is *some* contextualization. The difficulty lies in quantifying the extent to which this occurs. Since there is no definitive measure of contextuality, we propose three new ones:
 
-1. **Self-Similarity (SelfSim)**: The average cosine similarity of a word with itself across all contexts, where representations of the word are drawn from the same layer of a given model. For example, we would take the mean of cos(<span style="font-style: normal; letter-spacing: 0px; color: red">$\vec{dog}$</span>, <span style="font-style: normal; letter-spacing: 0px; color: green">$\vec{dog}$</span>) over all unique pairs to calculate SelfSim('dog').
+1. **Self-Similarity (SelfSim)**: The average cosine similarity of a word with itself across all the contexts in which it appears, where representations of the word are drawn from the same layer of a given model. For example, we would take the mean of cos(<span style="font-style: normal; letter-spacing: 0px; color: red">$\vec{dog}$</span>, <span style="font-style: normal; letter-spacing: 0px; color: green">$\vec{dog}$</span>) over all unique pairs to calculate SelfSim('dog').
 
-2. **Intra-Sentence Similarity (IntraSim)**: The average cosine similarity between a word and its context, where the context is represented as the average of its word representations. For example, for the first sentence $\vec{s} = \frac{1}{4}(\vec{A} + \vec{panda} + \vec{dog} + \vec{runs}).$ IntraSim(s) would then be the average cosine similarity between $s$ and each of the four words.
+2. **Intra-Sentence Similarity (IntraSim)**: The average cosine similarity between a word and its context. For the first sentence, where context vector $\vec{s} = \frac{1}{4}(\vec{A} + \vec{panda} + \vec{dog} + \vec{runs})$:
+	
+	$$IntraSim(s) = \frac{1}{4} \sum_{w \in \{A,\ panda,\ dog,\ runs\}} \cos(\vec{w}, \vec{s})$$
+
+	$IntraSim$ helps us discern whether the contextualization is naive - simply making each word more similar to its neighbors - or whether it is more nuanced, recognizing that words occuring in the same context can affect each other while still having distinct semantics.
 
 3. **Maximum Explainable Variance (MEV)**: The proportion of variance explained by the first principal component of a word’s representations (in a given layer) across different contexts. For example, MEV('dog') would be the proportion of variance explained by the first principal component of <span style="font-style: normal; letter-spacing: 0px; color: red">$\vec{dog}$</span>, <span style="font-style: normal; letter-spacing: 0px; color: green">$\vec{dog}$</span>, and every other instance of 'dog' in the data.
 
@@ -51,7 +59,7 @@ Note that each of these measures is calculated for *a given layer of a given mod
 
 When discussing contextuality, it is important to consider the isotropy of embeddings (i.e., whether they're uniformly distributed in all directions).
 
-In both figures below, SelfSim('dog') = 0.95. On the left, isotropy is high: this suggests that 'dog' is poorly contextualized, since its representations are nearly identical across all contexts. The figure on the right -- which has low isotropy -- suggests the opposite: because *any two words have a cosine similarity > 0.95*, a self-similarity of 0.95 is relatively low, in which case 'dog' *is* highly contextualized!
+In both figures below, SelfSim('dog') = 0.95. On the left, isotropy is high: this suggests that 'dog' is poorly contextualized, since its representations are nearly identical across all the contexts in which it appears. The figure on the right -- which has low isotropy -- suggests the opposite: because *any two words have a cosine similarity > 0.95*, a self-similarity of 0.95 is relatively low, in which case 'dog' *is* highly contextualized!
 <p align="center">
 	<img src="{{ site.url }}/blog/assets/contextual/sphere_1.png" style="width: 30%">
 	&nbsp; vs. &nbsp;
@@ -85,7 +93,7 @@ But is it even necessary to adjust for anisotropy? Yes! As seen below, upper lay
 
 ### Static vs. Contextualized
 
-**On average, less than 5% of the variance in a word’s contextualized representations can be explained by a static embedding.** This 5% threshold represents the best-case scenario, where the static embedding is the first principal component. There is no theoretical guarantee that a word vector obtained using GloVe, for example, would be similar to the static embedding that maximizes the variance explained. This suggests that BERT, ELMo, and GPT-2 are not simply assigning one embedding per word sense: otherwise, the proportion of variance explained would be much higher. 
+**On average, less than 5% of the variance in a word’s contextualized representations can be explained by a static embedding.** If a word's contextualized representations were not at all contextual, we would expect their first principal component to explain 100% of the variance. Instead, we find that - on average - less than 5% of the variance can be explained. This 5% threshold represents the best-case scenario, where the static embedding is the first principal component. There is no theoretical guarantee that a word vector obtained using GloVe, for example, would be similar to the static embedding that maximizes the variance explained. This suggests that BERT, ELMo, and GPT-2 are not simply assigning one embedding per word sense: otherwise, the proportion of variance explained would be much higher. 
 
 **Principal components of contextualized representations in lower layers of BERT outperform GloVe and FastText on many static embedding benchmarks.** This method takes the previous finding to its logical conclusion: what if we created a new type of static embedding for each word by simply taking the first principal component of its contextualized representations? It turns out that this works surprisingly well. If we use representations from lower layers of BERT, these *principal component embeddings* outperform GloVe and FastText on benchmark tasks covering semantic similarity, analogy solving, and concept categorization. 
 	
@@ -102,7 +110,7 @@ In ELMo, BERT, and GPT-2, upper layers produce more context-specific and represe
 
 On average, less than 5% of the variance in a word's contextualized representations can be explained by a static embedding. Even in the best-case scenario, static word embeddings would thus be a poor replacement for contextualized ones. Still, contextualized representations can be used to create a more powerful type of static embedding: principal components of contextualized representations in lower layers of BERT are much better than GloVe and FastText!
 
-If you're interested in reading more along these lines, check out Anna Rogers' [The Dark Secrets of BERT (2020)](https://text-machine-lab.github.io/blog/2020/bert-secrets/) and Lena Voita's [Evolution of Representations in the Transformer (2019)](https://lena-voita.github.io/posts/emnlp19_evolution.html). If you found this post useful, you can cite our paper as follows:
+If you're interested in reading more along these lines, check out [The Dark Secrets of BERT (Rogers et al., 2019)](https://text-machine-lab.github.io/blog/2020/bert-secrets/), [Evolution of Representations in the Transformer (Voita et al., 2019)](https://lena-voita.github.io/posts/emnlp19_evolution.html), and [Cross-Lingual Alignment of Contextual Word Embeddings (Schuster et al., 2019)](http://people.csail.mit.edu/tals/publication/crosslingual_elmo/). If you found this post useful, you can cite our paper as follows:
 
 	@inproceedings{@inproceedings{ethayarajh-2019-contextual,
     title = "How Contextual are Contextualized Word Representations? Comparing the Geometry of {BERT}, {ELM}o, and {GPT}-2 Embeddings",
@@ -119,7 +127,7 @@ If you're interested in reading more along these lines, check out Anna Rogers' [
 ##### Acknowledgements
 
 <p class="small-text"> 
-Many thanks to Anna Rogers for live-tweeting this paper during EMNLP 2019.
+Many thanks to Anna Rogers for live-tweeting this paper during EMNLP 2019. Special thanks to John Hewitt, Nelson Liu, and Krishnapriya Vishnubhotla for their comments on this blog post.
 </p>
 
 
@@ -127,6 +135,8 @@ Many thanks to Anna Rogers for live-tweeting this paper during EMNLP 2019.
 
 [^1]: This was calculated after adjusting for the effect of anisotropy.
 
-[^2]: Some previous work ([Schluter, 2018](https://www.aclweb.org/anthology/N18-2039); [Rogers et al., 2017](https://www.aclweb.org/anthology/S17-1017)) has argued that word analogies should not be used for evaluating word embeddings, for a number of different theoretical and empirical reasons. We agree with this position. However, given the historical importance of this test, it is worth mentioning here.
+[^2]: The fact that arithmetic operators can be applied to embedding spaces is a hallmark of word vectors. Still, the ability to solve word analogies should not be treated as a perfect proxy for embedding quality (see [Schluter, 2018](https://www.aclweb.org/anthology/N18-2039); [Rogers et al., 2017](https://www.aclweb.org/anthology/S17-1017)).
 
 [^3]: For self-similarity and intra-sentence similarity, the baseline is the average cosine similarity between randomly sampled representations (of different words) from a given layer's representation space. For MEV, the baseline is the variance explained by the first principal component of uniformly randomly sampled representations. See the paper for details.
+
+[^4]: Provided we used the contextualized representations from lower layers of BERT (see the section titled 'Static vs. Contextualized').
