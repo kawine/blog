@@ -50,7 +50,7 @@ What does contextuality look like? Consider these two sentences:
 
 	$IntraSim$ helps us discern whether the contextualization is naive - simply making each word more similar to its neighbors - or whether it is more nuanced, recognizing that words occuring in the same context can affect each other while still having distinct semantics.
 
-3. **Maximum Explainable Variance (MEV)**: The proportion of variance explained by the first principal component of a word’s representations (in a given layer) across different contexts. For example, MEV('dog') would be the proportion of variance explained by the first principal component of <span style="font-style: normal; letter-spacing: 0px; color: red">$\vec{dog}$</span>, <span style="font-style: normal; letter-spacing: 0px; color: green">$\vec{dog}$</span>, and every other instance of 'dog' in the data.
+3. **Maximum Explainable Variance (MEV)**: The proportion of variance in a word’s representations (in a given layer) that can be explained by their first principal component. For example, MEV('dog') would be the proportion of variance explained by the first principal component of <span style="font-style: normal; letter-spacing: 0px; color: red">$\vec{dog}$</span>, <span style="font-style: normal; letter-spacing: 0px; color: green">$\vec{dog}$</span>, and every other instance of 'dog' in the data. MEV('dog') = 1 would imply that there was no contextualization, since all the variance in the representations could be explained by a static embedding; if MEV('dog') is close to 0, then a static embedding could explain almost none of the variance.
 
 Note that each of these measures is calculated for *a given layer of a given model*, since each layer has its own representation space. For example, the word 'dog' has different self-similarity values in Layer 1 of BERT and Layer 2 of BERT.
 
@@ -59,7 +59,7 @@ Note that each of these measures is calculated for *a given layer of a given mod
 
 When discussing contextuality, it is important to consider the isotropy of embeddings (i.e., whether they're uniformly distributed in all directions).
 
-In both figures below, SelfSim('dog') = 0.95. On the left, isotropy is high: this suggests that 'dog' is poorly contextualized, since its representations are nearly identical across all the contexts in which it appears. The figure on the right -- which has low isotropy -- suggests the opposite: because *any two words have a cosine similarity > 0.95*, a self-similarity of 0.95 is relatively low, in which case 'dog' *is* highly contextualized!
+In both figures below, SelfSim('dog') = 0.95. The image on the left suggests that 'dog' is poorly contextualized. Not only are its representations are nearly identical across all the contexts in which it appears, but the high isotropy of the representation space suggests that a self-similarity of 0.95 is exceptionally high. The image on the right suggests the opposite: because *any two words have a cosine similarity > 0.95*, 'dog' having a self-similarity of 0.95 is no longer impressive. *Relative to other words*, 'dog' would be considered highly contextualized!
 <p align="center">
 	<img src="{{ site.url }}/blog/assets/contextual/sphere_1.png" style="width: 30%">
 	&nbsp; vs. &nbsp;
