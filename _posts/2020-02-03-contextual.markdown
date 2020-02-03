@@ -108,9 +108,13 @@ For all three models, principal component embeddings created from lower layers a
 
 In ELMo, BERT, and GPT-2, upper layers produce more context-specific representations than lower layers. However, these models contextualize words very differently from one another: after adjusting for anisotropy, the similarity between words in the same sentence is highest in ELMo but almost non-existent in GPT-2.
 
-On average, less than 5% of the variance in a word's contextualized representations can be explained by a static embedding. Even in the best-case scenario, static word embeddings would thus be a poor replacement for contextualized ones. Still, contextualized representations can be used to create a more powerful type of static embedding: principal components of contextualized representations in lower layers of BERT are much better than GloVe and FastText!
+On average, less than 5% of the variance in a word's contextualized representations can be explained by a static embedding. Even in the best-case scenario, static word embeddings would thus be a poor replacement for contextualized ones. Still, contextualized representations can be used to create a more powerful type of static embedding: principal components of contextualized representations in lower layers of BERT are much better than GloVe and FastText! If you're interested in reading more along these lines, check out: 
+- [The Dark Secrets of BERT (Rogers et al., 2019)](https://text-machine-lab.github.io/blog/2020/bert-secrets/)
+- [Evolution of Representations in the Transformer (Voita et al., 2019)](https://lena-voita.github.io/posts/emnlp19_evolution.html)
+- [Cross-Lingual Alignment of Contextual Word Embeddings (Schuster et al., 2019)](http://people.csail.mit.edu/tals/publication/crosslingual_elmo/)
+- [The Illustrated BERT, ELMo, and co. (Alammar, 2019)](https://jalammar.github.io/illustrated-bert/)
 
-If you're interested in reading more along these lines, check out [The Dark Secrets of BERT (Rogers et al., 2019)](https://text-machine-lab.github.io/blog/2020/bert-secrets/), [Evolution of Representations in the Transformer (Voita et al., 2019)](https://lena-voita.github.io/posts/emnlp19_evolution.html), and [Cross-Lingual Alignment of Contextual Word Embeddings (Schuster et al., 2019)](http://people.csail.mit.edu/tals/publication/crosslingual_elmo/). If you found this post useful, you can cite the paper as follows:
+If you found this post useful, you can cite the paper as follows:
 
 	@inproceedings{@inproceedings{ethayarajh-2019-contextual,
     title = "How Contextual are Contextualized Word Representations? Comparing the Geometry of {BERT}, {ELM}o, and {GPT}-2 Embeddings",
