@@ -13,9 +13,9 @@ But just *how contextual* are these contextualized representations?
 
 Consider the word 'mouse'. It has multiple word senses, one referring to a rodent and another to a device. Does BERT effectively create one representation of 'mouse' per word sense? Or does BERT create infinitely many representations of 'mouse', each highly specific to its context?
 <p align="center">
-	<img src="{{ site.url }}/blog/assets/contextual/contextual_mouse_transparent_1.png" style="width: 46%">
+	<img src="{{ site.url }}/blog/assets/contextual/contextual_mouse_transparent_1.png" style="width: 45%">
 	&nbsp; vs. &nbsp;
-	<img src="{{ site.url }}/blog/assets/contextual/contextual_mouse_transparent_2.png" style="width: 46%">
+	<img src="{{ site.url }}/blog/assets/contextual/contextual_mouse_transparent_2.png" style="width: 45%">
 </p>
 
 In our EMNLP 2019 paper, ["How Contextual are Contextualized Word Representations?"](https://www.aclweb.org/anthology/D19-1006.pdf), we tackle these questions and arrive at some surprising conclusions:
