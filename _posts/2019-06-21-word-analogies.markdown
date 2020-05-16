@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Why does King - Man + Woman = Queen? Understanding Word Analogies"
+title:  "Word Embedding Analogies: Understanding King - Man + Woman = Queen"
 date:   2019-06-21
 author: Kawin Ethayarajh 
 paper-link: https://www.aclweb.org/anthology/P19-1315
