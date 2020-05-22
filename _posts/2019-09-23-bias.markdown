@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "What causes bias in word embedding associations?"
+title:  "Bias in Word Embeddings - What Causes It?"
 date:   2019-09-23
 author: Kawin Ethayarajh 
 paper-link: https://www.aclweb.org/anthology/P19-1166
