@@ -78,7 +78,7 @@ This means that we can now use the SGNS or GloVe identity above to rewrite these
 >
 > * <span style="font-style: normal; letter-spacing: 0px; color: black"> $\text{csPMI}(x,y)$ is the same for every word pair $(x,y)$</span>
 > * <span style="font-style: normal; letter-spacing: 0px; color: black"> $\text{csPMI}(a, x) = \text{csPMI}(b, y)$ for any two word pairs $(x, y), (a, b)$</span>
-> * <span style="font-style: normal; letter-spacing: 0px; color: black"> $\\{ M_{a,\cdot} - M_{y,\cdot}$, $M_{a,\cdot} - M_{y,\cdot}$, $M_{a,\cdot} - M_{y,\cdot} \\}$ are linearly dependent for any two word pairs </span>
+> * <span style="font-style: normal; letter-spacing: 0px; color: black"> $\\{ M_{a,\cdot} - M_{y,\cdot}$, $M_{b,\cdot} - M_{y,\cdot}$, $M_{x,\cdot} - M_{y,\cdot} \\}$ are linearly dependent for any two word pairs </span>
 
 For example, for $$\vec{king} - \vec{man} + \vec{woman} = \vec{queen}$$ to hold exactly in a noiseless SGNS or GloVe space, we would need the following to be satisfied by the training corpus[^3]:
 * csPMI(*king*, *queen*) = csPMI(*man*, *woman*)
@@ -180,7 +180,7 @@ If you found this post useful, you can cite our paper as follows:
 ##### Acknowledgements
 
 <p class="small-text"> 
-Many thanks to Omer Levy and Yoav Goldberg for their helpful comments on an early draft of this paper, as well as the anonymous ACL reviewers. Special thanks to Graeme Hirst, Krishnapriya Vishnubhotla, Chloe Pou-Prom, and Allen Nie for their comments on this blog post.
+Many thanks to Omer Levy and Yoav Goldberg for their helpful comments on an early draft of this paper, as well as the anonymous ACL reviewers. Special thanks to Graeme Hirst, Krishnapriya Vishnubhotla, Chloe Pou-Prom, and Allen Nie for their comments on this blog post. Thanks to Scott H. Hawley for catching a typo in the csPMI Theorem.
 </p>
 
 ##### Footnotes
