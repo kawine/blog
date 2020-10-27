@@ -39,7 +39,7 @@ These linear word analogies, such as $\vec{king} + (\vec{woman} - \vec{man}) \ap
 
 Parallelograms have several useful properties that we can exploit. For one, a quadrilateral is a parallelogram iff each pair of opposite sides is equal in length (and in higher-dimensional spaces, all four points are coplanar). This means that 
 
-> <span style="font-style: normal; letter-spacing: 0px; color: black"> A linear word analogy holds exactly over a set of ordered word pairs $S$ iff $ \\| \vec{x} - \vec{y} \\|^2 $ is the same for every word pair, $ || \vec{a} - \vec{x} ||^2 = || \vec{b} - \vec{y} ||^2 $ for any two word pairs, and the vectors of all words in $S$ are coplanar.
+> <span style="font-style: normal; letter-spacing: 0px; color: black"> A linear word analogy holds exactly over a set of ordered word pairs $S$ iff $ \\| \vec{x} - \vec{y} \\|^2 $ is the same for every word pair, $ \\| \vec{a} - \vec{x} \\|^2 = \\| \vec{b} - \vec{y} \\|^2 $ for any two word pairs, and the vectors of all words in $S$ are coplanar.
 
 
 ### Interpreting Inner Products
@@ -61,7 +61,7 @@ Using these identities and the symmetry of the factorized word-context matrix, w
 > <span style="font-style: normal; letter-spacing: 0px; color: black"> A linear analogy $f : \vec{x} \mapsto \vec{x} + \vec{r}$ holds over ordered pairs $S$ in an SGNS or GloVe word space with no reconstruction error iff $\exists\ \lambda \in \mathbb{R}, g: \vec{x}_c \mapsto \vec{x}_c + \lambda \vec{r}$ holds over $S$ in the corresponding context space.
 </span>
 
-This theoretical finding concurs with prior [empirical](https://www.aclweb.org/anthology/D17-1308) and [theoretical](https://papers.nips.cc/paper/7368-on-the-dimensionality-of-word-embedding.pdf) work. Most work often assumes $\lambda \approx 1$ in practice, which we find to be true as well. This finding allows us to write $$\| \vec{x} - \vec{y} \|^2$$ as the inner product of $\vec{x} - \vec{y}$ and $\vec{x}_c - \vec{y}_c$ scaled by $1/\lambda$, making it much more interpretable.
+This theoretical finding concurs with prior [empirical](https://www.aclweb.org/anthology/D17-1308) and [theoretical](https://papers.nips.cc/paper/7368-on-the-dimensionality-of-word-embedding.pdf) work. Most work often assumes $\lambda \approx 1$ in practice, which we find to be true as well. This finding allows us to write $ \\| \vec{x} - \vec{y} \\|^2 $ as the inner product of $\vec{x} - \vec{y}$ and $\vec{x}_c - \vec{y}_c$ scaled by $1/\lambda$, making it much more interpretable.
 
 
 ### When do Linear Word Analogies Hold?
@@ -80,7 +80,7 @@ This means that we can now use the SGNS or GloVe identity above to rewrite these
 > * <span style="font-style: normal; letter-spacing: 0px; color: black"> $\text{csPMI}(a, x) = \text{csPMI}(b, y)$ for any two word pairs $(x, y), (a, b)$</span>
 > * <span style="font-style: normal; letter-spacing: 0px; color: black"> $\\{ M_{a,\cdot} - M_{y,\cdot}$, $M_{b,\cdot} - M_{y,\cdot}$, $M_{x,\cdot} - M_{y,\cdot} \\}$ are linearly dependent for any two word pairs </span>
 
-For example, for $$\vec{king} - \vec{man} + \vec{woman} = \vec{queen}$$ to hold exactly in a noiseless SGNS or GloVe space, we would need the following to be satisfied by the training corpus[^3]:
+For example, for $\vec{king} - \vec{man} + \vec{woman} = \vec{queen}$ to hold exactly in a noiseless SGNS or GloVe space, we would need the following to be satisfied by the training corpus[^3]:
 * csPMI(*king*, *queen*) = csPMI(*man*, *woman*)
 * csPMI(*king*, *man*) = csPMI(*queen*, *woman*)
 * row vectors of the four words in the factorized word-context matrix to be coplanar
@@ -111,7 +111,7 @@ This has long been considered the intuitive explanation of word analogies, despi
 
 #### Vector Addition as an Analogy
 
-By introducing the idea of a *null word* $\emptyset$, which maps to the zero vector in any space, we can frame vector addition ($\vec{x} + \vec{y} = \vec{z}$) as a linear analogy over $$\{(x,z), (\emptyset, y)\}$$. If $z$ were in the vocabulary, $\text{csPMI}(x,z) = \log p(y) + \delta$, where $\delta \in \mathbb{R}$ is a model-specific constant. This, in turn, implies that
+By introducing the idea of a *null word* $\emptyset$, which maps to the zero vector in any space, we can frame vector addition ($\vec{x} + \vec{y} = \vec{z}$) as a linear analogy over $ \\{(x,z), (\emptyset, y)\\} $. If $z$ were in the vocabulary, $\text{csPMI}(x,z) = \log p(y) + \delta$, where $\delta \in \mathbb{R}$ is a model-specific constant. This, in turn, implies that
 
 $$ p(x) > p(y) \iff \text{csPMI}(z,y) > \text{csPMI}(z,x)$$
 
