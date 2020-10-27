@@ -32,7 +32,11 @@ To make any assertion about whether these debiased embeddings are actually unbia
 
 For example, the entire corpus would be unbiased with respect to \{('male', 'female')\} iff $M_{\textit{w}, \text{male}}$ and $M_{\textit{w}, \text{female}}$ were interchangeable for any word $w$. Since $M$ is a word-context matrix, unbiasedness effectively means that the elements for ($w$, 'male') and ($w$, 'female') in $M$ can be switched without any impact on the word embeddings. Using this definition of unbiasedness, we prove that:
 
-> <span style="font-style: normal; letter-spacing: 0px; color: black"> For a set of word pairs $S$, let the bias subspace $B = \text{span}(\\{ \vec{x} - \vec{y}\, |\, (x,y) \in S\\})$. For every word $w \not \in S$, let the debiased word vector $$\vec{w_d} \triangleq \vec{w} - \text{proj}_B \vec{w}$$. For any embedding model that implicitly factorizes $M$ into a word matrix $W$ and a context matrix $C$, the reconstructed word-context matrix $W_d C^T = M_d$ is unbiased with respect to $S$. </span>
+> <span style="font-style: normal; letter-spacing: 0px; color: black"> For a set of word pairs $S$, let the bias subspace $B = \text{span}(\\{ \vec{x} - \vec{y}\, |\, (x,y) \in S\\})$. For every word $w \not \in S$, let the debiased word vector 
+>
+> $$\vec{w_d} \triangleq \vec{w} - \text{proj}_B \vec{w}$$
+>
+> For any embedding model that implicitly factorizes $M$ into a word matrix $W$ and a context matrix $C$, the reconstructed word-context matrix $W_d C^T = M_d$ is unbiased with respect to $S$. </span>
 
 
 ### Lipstick on a Pig?
