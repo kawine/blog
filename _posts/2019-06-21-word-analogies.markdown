@@ -147,7 +147,7 @@ In the table above, we can see that
 
 #### Euclidean Distance and csPMI
 
-To test the interpretation of Euclidean distance offered by the csPMI Theorem, we plot $-\text{csPMI}(x,y)$ against $$\|\vec{x} - \vec{y}\|^2$$ for SGNS vectors trained on Wikipedia:
+To test the interpretation of Euclidean distance offered by the csPMI Theorem, we plot $-\text{csPMI}(x,y)$ against $\\|\vec{x} - \vec{y}\\|^2$ for SGNS vectors trained on Wikipedia:
 
 <p align="center">
 	<img src="{{ site.url }}/blog/assets/csPMI_dist.png" style="width: 50%">
