@@ -39,7 +39,7 @@ These linear word analogies, such as $\vec{king} + (\vec{woman} - \vec{man}) \ap
 
 Parallelograms have several useful properties that we can exploit. For one, a quadrilateral is a parallelogram iff each pair of opposite sides is equal in length (and in higher-dimensional spaces, all four points are coplanar). This means that 
 
-> <span style="font-style: normal; letter-spacing: 0px; color: black"> A linear word analogy holds exactly over a set of ordered word pairs $S$ iff $$ || \vec{x} - \vec{y} ||^2 $$ is the same for every word pair, $$ \| \vec{a} - \vec{x} \|^2 = \| \vec{b} - \vec{y} \|^2 $$ for any two word pairs, and the vectors of all words in $S$ are coplanar.
+> <span style="font-style: normal; letter-spacing: 0px; color: black"> A linear word analogy holds exactly over a set of ordered word pairs $S$ iff $ \| \vec{x} - \vec{y} \|^2 $ is the same for every word pair, $ \| \vec{a} - \vec{x} \|^2 = \| \vec{b} - \vec{y} \|^2 $ for any two word pairs, and the vectors of all words in $S$ are coplanar.
 
 
 ### Interpreting Inner Products
