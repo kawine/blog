@@ -32,7 +32,7 @@ Let's say we want to measure whether some protected group $A$ is being discrimin
 
 - a cost function $c : (y, \hat{y}) \to [0,C]$ that describes the cost of predicting $\hat{y}$ when the label is $y$, where $C$ is the maximum possible cost
 
-We want to choose these functions such that our bias metric of choice -- which we call the __groupwise disparity__ $\delta(f,c)$ -- can be expressed as the difference in expected cost borne by the protected and unprotected groups:
+We want to choose these functions such that our bias metric of choice -- which we call the *groupwise disparity* $\delta(f,c)$ -- can be expressed as the difference in expected cost borne by the protected and unprotected groups:
 
 $$\delta(f,c) = \mathbb{E}_a[c(y_a, \hat{y}_a)] - \mathbb{E}_b[c(y_b, \hat{y}_b)]$$
 
@@ -63,7 +63,7 @@ On this dataset, our bias estimate for a model we're evaluating is $\bar{\delta}
 
 In this scenario $C = 1, \bar{\delta} = 0.05, \rho = 0.95$. We assume that there are equally many stereotypical and non-stereotypical examples and that the variance is maximal, so $\gamma = 0.5, \sigma^2 = 4$. 
 
-With these settings, $n > 11903$; we would need a dataset of more than 11903 examples to claim with 95% confidence that the co-reference resolution system is gender-biased. This is roughly 3.8 times larger than [WinoBias](https://arxiv.org/abs/1804.06876), the largest dataset currently available for this purpose. As seen in the chart below, we could only use WinoBias if $\bar{\delta} = 0.0975$ -- that is, if the sample bias were almost twice as high.
+With these settings, $n > 11903$; we would need a dataset of more than 11903 examples to claim with 95% confidence that the co-reference resolution system is gender-biased. This is roughly 3.8 times larger than [WinoBias](https://arxiv.org/abs/1804.06876), the largest dataset currently available for this purpose. As seen below, we could only use WinoBias if $\bar{\delta} = 0.0975$ -- that is, if the sample bias were almost twice as high.
 
 <p align="center">
 	<img src="{{ site.url }}/blog/assets/bbu_3.png" style="width: 60%">
