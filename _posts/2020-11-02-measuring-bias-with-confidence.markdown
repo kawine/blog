@@ -7,7 +7,7 @@ paper-link: https://www.aclweb.org/anthology/2020.acl-main.262/
 link-text: (see paper)
 categories: NLP
 ---
-Countless papers have found that "bias" -- defined in manifold ways -- pervades the [embeddings](https://arxiv.org/abs/1904.03310) and [predictions](https://arxiv.org/abs/1804.09301) of the black-box models that dominate natural language processing (NLP). This, in turn, has led to a wave of work on how to "[debias](http://papers.nips.cc/paper/6228-man-is-to-computer-programmer-as-woman-is-to-homemaker-d)" models, only for others to find ways in which debiased models [were still biased](https://arxiv.org/abs/1903.03862), and so on.
+"Bias" -- defined in manifold ways -- has been found to pervade the [embeddings](https://arxiv.org/abs/1904.03310) and [predictions](https://arxiv.org/abs/1804.09301) of the black-box models that dominate natural language processing (NLP). This, in turn, has led to a wave of work on how to "[debias](http://papers.nips.cc/paper/6228-man-is-to-computer-programmer-as-woman-is-to-homemaker-d)" models, only for others to find ways in which debiased models [are still biased](https://arxiv.org/abs/1903.03862), and so on.
 
 But are these claims of NLP models being biased (or unbiased) being made with enough evidence?
 
@@ -48,7 +48,6 @@ $$\begin{aligned}
 t &= \frac{B + \sqrt{B^2 - 8 n \sigma^2 \log \left[\frac{1}{2} (1 - \rho) \right]}}{2n} \\
 \text{where } B &= -\frac{2 C}{3 \gamma} \log \left[ \frac{1}{2} (1 - \rho) \right],  \gamma = \min(\gamma_A, \gamma_B)
 \end{aligned}$$
-
 
 For example, if we set $\rho = 0.95$, we could claim with 95% certainty that the true bias experienced by the protected group lies in the interval $[ \hat{\delta} - t, \hat{\delta} + t]$, where $\hat{\delta}$ is our bias estimate.
 
