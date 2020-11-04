@@ -51,7 +51,7 @@ t &= \frac{B + \sqrt{B^2 - 8 n \sigma^2 \log \left[\frac{1}{2} (1 - \rho) \right
 \text{where } B &= -\frac{2 C}{3 \gamma} \log \left[ \frac{1}{2} (1 - \rho) \right],  \gamma = \min(\gamma_A, \gamma_B)
 \end{aligned}$$
 
-For example, if we set $\rho = 0.95$, we could claim with 95% certainty that the true bias experienced by the protected group lies in the interval $[ \hat{\delta} - t, \hat{\delta} + t]$, where $\hat{\delta}$ is our bias estimate.
+For example, if we set $\rho = 0.95$, we could claim with 95% confidence that the true bias experienced by the protected group lies in the interval $[ \hat{\delta} - t, \hat{\delta} + t]$, where $\hat{\delta}$ is our bias estimate.
 
 
 ### Why We Need Bigger Datasets 
