@@ -11,7 +11,7 @@ Countless studies have found that "bias" -- defined in manifold ways -- pervades
 
 But are these claims of NLP models being biased (or unbiased) being made with enough evidence?
 
-Consider the sentence _"The doctor gave instructions to the nurse before she left."_ If a co-reference resolution system mistakenly thinks "she" refers to the nurse in this instance, is it gender-biased? Possibly -- but it may also make mistakes in the other direction with equal frequency (e.g., thinking "he" refers to a nurse when it doesn't). What if the system makes gender-stereotypical mistakes on not one sentence, but 100, or 1000? Then we could be more confident in claiming that it's biased.
+Consider the sentence _"The doctor gave instructions to the nurse before she left."_ If a [co-reference resolution system](https://en.wikipedia.org/wiki/Coreference#Coreference_resolution) mistakenly thinks "she" refers to the nurse in this instance, is it gender-biased? Possibly -- but it may also make mistakes in the other direction with equal frequency (e.g., thinking "he" refers to a nurse when it doesn't). What if the system makes gender-stereotypical mistakes on not one sentence, but 100, or 1000? Then we could be more confident in claiming that it's biased.
 
 In my ACL 2020 paper, "[Measuring Fairness under Uncertainty with Bernstein Bounds](https://www.aclweb.org/anthology/2020.acl-main.262/)", I go over how, in the haste to claim the presence or absence of bias, the inherent uncertainty in measuring bias is often overlooked in the literature:
 
