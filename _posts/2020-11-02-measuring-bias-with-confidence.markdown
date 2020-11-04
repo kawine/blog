@@ -11,34 +11,36 @@ Countless studies have found that "bias" -- defined in manifold ways -- pervades
 
 But are these claims of NLP models being biased (or unbiased) being made with enough evidence?
 
-Consider the sentence _"The doctor gave instructions to the nurse before she left."_ If a co-reference resolution system mistakenly thinks "she" refers to the nurse, is it gender-biased? Possibly -- but it may also make mistakes in the other direction with equal frequency (e.g., thinking "he" refers to a nurse when it doesn't). What if the system makes gender-stereotypical mistakes on not one sentence, but 100, or 1000? Then we could be more confident in claiming that it's biased.
+Consider the sentence _"The doctor gave instructions to the nurse before she left."_ If a co-reference resolution system mistakenly thinks "she" refers to the nurse in this instance, is it gender-biased? Possibly -- but it may also make mistakes in the other direction with equal frequency (e.g., thinking "he" refers to a nurse when it doesn't). What if the system makes gender-stereotypical mistakes on not one sentence, but 100, or 1000? Then we could be more confident in claiming that it's biased.
 
 In my ACL 2020 paper, "[Measuring Fairness under Uncertainty with Bernstein Bounds](https://www.aclweb.org/anthology/2020.acl-main.262/)", I go over how, in the haste to claim the presence or absence of bias, the inherent uncertainty in measuring bias is often overlooked in the literature:
 
-- **Bias is not a single number**. When we test how biased a model is, we are *estimating* its bias on a sample of the data; our estimate may suggest the model is biased or unbiased when in reality the opposite is true.
+- **Bias is not a single number**. When we test how biased a model is, we are *estimating* its bias on a sample of the data; our estimate may suggest that the model is biased or unbiased, but the opposite could still be true.
 
-- **This uncertainty can be captured using confidence intervals.** Instead of reporting a single number for bias, you should report an interval -- based on factors like your desired confidence and how you define "bias".
+- **This uncertainty can be captured using confidence intervals.** Instead of reporting a single number for bias, practitioners should report an interval, based on factors such as the desired confidence and the proposed definition of “bias”.
 
 - **Existing datasets are too small to conclusively identify bias.** Existing datasets for measuring specific biases can only be used to make 95% confidence claims when the bias estimate is egregiously high; to catch more subtle bias, the NLP community needs bigger datasets.
+
+Although this problem can exist with any kind of model, we focus on a remedy for classification models in particular.
 
 
 ### Bernstein-Bounded Unfairness
 
-A bias estimate, made using a small sample of annotated data, likely differs from the true bias (i.e., at the population-level). How can we express our uncertainty about the estimate? We propose a method called Bernstein-bounded unfairness that translates this uncertainty into a confidence interval.
+A bias estimate, made using a small sample of annotated data, likely differs from the true bias (i.e., at the population-level). How can we express our uncertainty about the estimate? We propose a method called Bernstein-bounded unfairness that translates this uncertainty into a confidence interval using [Bernstein inequalities](https://en.wikipedia.org/wiki/Bernstein_inequalities_(probability_theory)).
 
 Let's say we want to measure whether some protected group $A$ is being discriminated against, relative to some unprotected group $B$. They occur in the population with frequency $\gamma_A, \gamma_B$ respectively. We need
 
-- an annotation function $f$ that maps each example $x$ to $A, B,$ or neither
+- an annotation function that maps each example $x$ to $A, B,$ or neither
 
-- a cost function $c : (y, \hat{y}) \to [0,C]$ that describes the cost of predicting $\hat{y}$ when the label is $y$, where $C$ is the maximum possible cost
+- a cost function $c : (y, \hat{y}) \to [0,C]$ that describes the cost of predicting $\hat{y}$ when the true label is $y$, where $C$ is the maximum possible cost
 
-We want to choose these functions such that our bias metric of choice -- which we call the *groupwise disparity* $\delta(f,c)$ -- can be expressed as the difference in expected cost borne by the protected and unprotected groups:
+We want to choose these functions such that our bias metric of choice -- which we call the *groupwise disparity* $\delta(f,c)$ -- can be expressed as the difference in expected cost borne by the protected and unprotected groups. Given a model that makes predictions $\hat{y}_a$ for $x_a \in A$ and $\hat{y}_b$ for $x_b \in B$:
 
 $$\delta(f,c) = \mathbb{E}_a[c(y_a, \hat{y}_a)] - \mathbb{E}_b[c(y_b, \hat{y}_b)]$$
 
 If the protected group is incurring higher costs in expectation, it is being biased against. So what might these cost and annotation functions look like for some canonical bias metrics?
 
-- Demographic parity requires that the probability of a positive outcome (i.e., $\text{Pr}[\hat{y} = 1]$) be equal across groups. Here, the cost $c(y, \hat{y}) = (1 - \hat{y})$.
+- Demographic parity requires that the probability of a positive outcome (i.e., $\text{Pr}[\hat{y} = 1]$) be equal across groups. Here, the cost $c(y, \hat{y}) = (1 - \hat{y})$ and there are no restrictions on what the annotation function can be.
 
 - [Equal opportunity](https://arxiv.org/abs/1610.02413) requires that the true positive rates be equal across groups. The cost function would still be $c(y, \hat{y}) = (1 - \hat{y})$, but the annotation function would only allow qualified examples (i.e., $y(x) = 1$) into $A$ or $B$, since we're measuring the difference in true positive rates.
 
@@ -56,7 +58,7 @@ For example, if we set $\rho = 0.95$, we could claim with 95% certainty that the
 
 If we want to say with 95% confidence that a classifier is biased *to some extent* -- but want to spend as little time annotating data as possible -- we need to find the smallest $n$ such that $0 \not\in [ \hat{\delta} - t, \hat{\delta} + t]$. We can do this by working backwards from the formula for $t$ given above (see paper for details).
 
-Let's go back to our original example. Say we have a dataset of 500 examples for measuring gender bias in co-reference resolution system, to test whether a model does better on gender-stereotypical examples (e.g., a female nurse) than non-gender-stereotypical examples (e.g., a male nurse). 
+Let's go back to our original example. Say we have a dataset of 500 examples for measuring gender bias in co-reference resolution systems, to test whether a model does better on gender-stereotypical examples (e.g., a female nurse) than non-gender-stereotypical examples (e.g., a male nurse). 
 
 On this dataset, our bias estimate for a model we're evaluating is $\bar{\delta} = 0.05$. Is this enough to claim with 95% confidence that the model is gender-biased?
 
@@ -68,7 +70,7 @@ With these settings, $n > 11903$; we would need a dataset of more than 11903 exa
 	<img src="{{ site.url }}/blog/assets/bbu_3.png" style="width: 60%">
 </p>
 
-What if we want to catch more subtle bias? Although it may be possible to derive tighter confidence intervals, what we really need are larger bias-specific datasets. Although the datasets we currently have are undoubtedly helpful, they need to be much larger in order to be a useful diagnostic.
+What if we want to catch more subtle bias? Although it may be possible to derive tighter confidence intervals, what we really need are larger bias-specific datasets. The datasets we currently have are undoubtedly helpful, but they need to be much larger in order to diagnose biases with confidence.
 
 
 If you found this post useful, you can cite our paper as follows:
@@ -91,6 +93,6 @@ If you found this post useful, you can cite our paper as follows:
 ##### Acknowledgements
 
 <p class="small-text"> 
-<!-- Many thanks to Krishnapriya Vishnubhotla, Jieyu Zhao, and Hila Gonen for their feedback on this blog post!  -->
+Many thanks to Krishnapriya Vishnubhotla and Kaitlyn Zhou for their feedback on this blog post! 
 </p>
 
