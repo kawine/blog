@@ -42,12 +42,6 @@ $$\delta(f,c) = \mathbb{E}_a[c(y_a, \hat{y}_a)] - \mathbb{E}_b[c(y_b, \hat{y}_b)
 
 If the protected group is incurring higher costs in expectation, it is being biased against. For example, if we want to determine whether a classifier is more accurate on the unprotected group $B$, then we would set the cost function to be the 1-0 loss (1 for an incorrect prediction, 0 for a correct one). If $B$ has a lower cost on average then $A$, then it would mean that the classifier is more accurate on $B$.
 
-What might these cost and annotation functions look like for some canonical bias metrics?
-
-- [Demographic parity](https://arxiv.org/abs/1610.02413) requires that the probability of a positive outcome (i.e., $\text{Pr}[\hat{y} = 1]$) be equal across groups. Here, the cost $c(y, \hat{y}) = (1 - \hat{y})$ and there are no restrictions on what the annotation function can be.
-
-- [Equal opportunity](https://arxiv.org/abs/1610.02413) requires that the true positive rates be equal across groups. The cost function would still be $c(y, \hat{y}) = (1 - \hat{y})$, but the annotation function would only allow "qualified" examples (i.e., $y(x) = 1$) into $A$ or $B$, since we're measuring the difference in true positive rates ($\text{Pr}[\hat{y} = 1 \| y = 1]$).
-
 For a desired confidence level $\rho \in [0,1)$, a dataset of $n$ examples, and the variance $\sigma^2$ of the amortized groupwise disparity across examples, the confidence interval $t$ would be 
 
 $$\begin{aligned}
