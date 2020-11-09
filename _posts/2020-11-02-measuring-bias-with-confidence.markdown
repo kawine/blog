@@ -7,7 +7,7 @@ paper-link: https://www.aclweb.org/anthology/2020.acl-main.262/
 link-text: (see paper)
 categories: NLP
 ---
-Countless studies have found that "bias" -- typically with respect to race and gender -- pervades the [embeddings](https://arxiv.org/abs/1904.03310) and [predictions](https://arxiv.org/abs/1804.09301) of the black-box models that dominate natural language processing (NLP). For example, the language model [GPT-3](https://en.wikipedia.org/wiki/GPT-3), of OpenAI fame, can generate [stunningly offensive rants]((https://www.technologyreview.com/2020/10/23/1011116/chatbot-gpt3-openai-facebook-google-safety-fix-racist-sexist-language-ai/)) when given the right prompt.
+Countless studies have found that "bias" -- typically with respect to race and gender -- pervades the [embeddings](https://arxiv.org/abs/1904.03310) and [predictions](https://arxiv.org/abs/1804.09301) of the black-box models that dominate natural language processing (NLP). For example, the language model [GPT-3](https://en.wikipedia.org/wiki/GPT-3), of OpenAI fame, can generate [stunningly racist rants]((https://www.technologyreview.com/2020/10/23/1011116/chatbot-gpt3-openai-facebook-google-safety-fix-racist-sexist-language-ai/)) when given the right prompt.
 
 This, in turn, has led to a wave of work on how to "[debias](http://papers.nips.cc/paper/6228-man-is-to-computer-programmer-as-woman-is-to-homemaker-d)" models, only for others to find ways in which debiased models [are still biased](https://arxiv.org/abs/1903.03862), and so on.
 
