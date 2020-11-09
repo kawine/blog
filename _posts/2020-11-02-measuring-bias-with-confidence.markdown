@@ -7,7 +7,7 @@ paper-link: https://www.aclweb.org/anthology/2020.acl-main.262/
 link-text: (see paper)
 categories: NLP
 ---
-Countless studies have found that "bias" -- typically with respect to race and gender -- pervades the [embeddings](https://arxiv.org/abs/1904.03310) and [predictions](https://arxiv.org/abs/1804.09301) of the black-box models that dominate natural language processing (NLP). For example, the language model [GPT-3](https://en.wikipedia.org/wiki/GPT-3), trained on vast amounts of text from the Internet, can generate [stunningly offensive rants]((https://www.technologyreview.com/2020/10/23/1011116/chatbot-gpt3-openai-facebook-google-safety-fix-racist-sexist-language-ai/)) when given the right prompt.
+Countless studies have found that "bias" -- typically with respect to race and gender -- pervades the [embeddings](https://arxiv.org/abs/1904.03310) and [predictions](https://arxiv.org/abs/1804.09301) of the black-box models that dominate natural language processing (NLP). For example, the language model [GPT-3](https://en.wikipedia.org/wiki/GPT-3), of OpenAI fame, can generate [stunningly offensive rants]((https://www.technologyreview.com/2020/10/23/1011116/chatbot-gpt3-openai-facebook-google-safety-fix-racist-sexist-language-ai/)) when given the right prompt.
 
 This, in turn, has led to a wave of work on how to "[debias](http://papers.nips.cc/paper/6228-man-is-to-computer-programmer-as-woman-is-to-homemaker-d)" models, only for others to find ways in which debiased models [are still biased](https://arxiv.org/abs/1903.03862), and so on.
 
@@ -28,25 +28,25 @@ Although this problem can exist with any kind of model, we focus on a remedy for
 
 ### Bernstein-Bounded Unfairness
 
-A bias estimate, made using a small sample of annotated data, likely differs from the true bias (i.e., at the population-level). How can we express our uncertainty about the estimate? We propose a method called Bernstein-bounded unfairness that translates this uncertainty into a confidence interval[^2].
+A bias estimate, made using a small sample of data, likely differs from the true bias (i.e., at the population-level). How can we express our uncertainty about the estimate? We propose a method called Bernstein-bounded unfairness that translates this uncertainty into a confidence interval[^2].
 
 Let's say we want to measure whether some protected group $A$ is being discriminated against by some classifier, relative to some unprotected group $B$. They occur in the population with frequency $\gamma_A, \gamma_B$ respectively. We need
 
-- An annotation function $f$ that maps each example $x$ to $A, B,$ or neither. Note that the annotation function maps inputs to the groups, not to the output space $Y$. For example, if we wanted to study how a sentiment classifier performed across different racial groups, then the inputs $x$ would be sentences, labels $y$ would be the sentiment, and the annotation function $f$ might map $x$ to \{white, non-white\} depending on the racial group of the sentence author.
+- An annotation function $f$ that maps each example $x$ to $A, B,$ or neither. Note that the annotation function maps inputs to the protected/unprotected groups, not to the output space $Y$. For example, if we wanted to study how a sentiment classifier performed across different racial groups, then the inputs $x$ would be sentences, labels $y$ would be the sentiment, and the annotation function $f$ might map $x$ to \{white, non-white\} depending on the racial group of the sentence author.
 
 - A cost function $c : (y, \hat{y}) \to [0,C]$ that describes the cost of incorrectly predicting $\hat{y}$ when the true label is $y$, where $C$ is the maximum possible cost. Since a model making an incorrect prediction for $x$ is an undesirable outcome for the group that $x$ belongs to, we frame this as a cost that must be borne by the group.
 
-We want to choose these functions such that our bias metric of choice -- which we call the *groupwise disparity* $\delta(f,c)$ -- can be expressed as the difference in expected cost borne by the protected and unprotected groups. Given a model that makes predictions $\hat{y}_a$ for $x_a \in A$ and $\hat{y}_b$ for $x_b \in B$, we want to express the bias as:
+We want to choose these functions such that our bias metric of choice -- which we call the *groupwise disparity* $\delta(f,c)$ -- can be expressed as the difference in expected cost borne by the protected and unprotected groups. Given a model that makes predictions $\hat{y}_a$ for protected $x_a \in A$ and $\hat{y}_b$ for unprotected $x_b \in B$, we want to express the bias as:
 
 $$\delta(f,c) = \mathbb{E}_a[c(y_a, \hat{y}_a)] - \mathbb{E}_b[c(y_b, \hat{y}_b)]$$
 
-If the protected group is incurring higher costs in expectation, it is being biased against. For example, if we want to determine whether a classifier is more accurate on the unprotected group $B$, then we would set the cost function to be the 1-0 loss (1 for an incorrect prediction, 0 for a correct one). If $B$ has a lower cost on average then $A$, then it would mean that the classifier is more accurate on $A$.
+If the protected group is incurring higher costs in expectation, it is being biased against. For example, if we want to determine whether a classifier is more accurate on the unprotected group $B$, then we would set the cost function to be the 1-0 loss (1 for an incorrect prediction, 0 for a correct one). If $B$ has a lower cost on average then $A$, then it would mean that the classifier is more accurate on $B$.
 
 What might these cost and annotation functions look like for some canonical bias metrics?
 
-- Demographic parity requires that the probability of a positive outcome (i.e., $\text{Pr}[\hat{y} = 1]$) be equal across groups. Here, the cost $c(y, \hat{y}) = (1 - \hat{y})$ and there are no restrictions on what the annotation function can be.
+- [Demographic parity](https://arxiv.org/abs/1610.02413) requires that the probability of a positive outcome (i.e., $\text{Pr}[\hat{y} = 1]$) be equal across groups. Here, the cost $c(y, \hat{y}) = (1 - \hat{y})$ and there are no restrictions on what the annotation function can be.
 
-- [Equal opportunity](https://arxiv.org/abs/1610.02413) requires that the true positive rates be equal across groups. The cost function would still be $c(y, \hat{y}) = (1 - \hat{y})$, but the annotation function would only allow qualified examples (i.e., $y(x) = 1$) into $A$ or $B$, since we're measuring the difference in true positive rates.
+- [Equal opportunity](https://arxiv.org/abs/1610.02413) requires that the true positive rates be equal across groups. The cost function would still be $c(y, \hat{y}) = (1 - \hat{y})$, but the annotation function would only allow "qualified" examples (i.e., $y(x) = 1$) into $A$ or $B$, since we're measuring the difference in true positive rates ($\text{Pr}[\hat{y} = 1 | y = 1]$).
 
 For a desired confidence level $\rho \in [0,1)$, a dataset of $n$ examples, and the variance $\sigma^2$ of the amortized groupwise disparity across examples, the confidence interval $t$ would be 
 
@@ -62,7 +62,7 @@ If we set $\rho = 0.95$, we could claim with 95% confidence that the true bias e
 
 If we want to say with 95% confidence that a classifier is biased *to some extent* -- but want to spend as little time annotating data as possible -- we need to find the smallest $n$ such that $0 \not\in [ \hat{\delta} - t, \hat{\delta} + t]$. We can do this by working backwards from the formula for $t$ given above (see paper for details).
 
-Let's go back to our original example. Say we want to figure out whether a co-reference resolution system, tasked with matching pronouns to the nouns they refer to, is gender-biased or not. We have a dataset of 500 examples to test whether the model does better on gender-stereotypical examples (e.g., a female nurse) than non-gender-stereotypical examples (e.g., a male nurse). 
+Let's go back to our original example. Say we want to figure out whether a co-reference resolution system, tasked with matching pronouns to the nouns they refer to, is gender-biased or not. We have a dataset of 500 examples to test whether the model does better on gender-stereotypical examples (e.g., a female nurse) than non-gender-stereotypical examples (e.g., a male nurse). Since we are measuring the difference in accuracy, we set the cost function to be the 1-0 loss.
 
 On this dataset, our bias estimate for a model we're evaluating is $\bar{\delta} = 0.05$. Is this enough to claim with 95% confidence that the model is gender-biased?
 
@@ -78,7 +78,7 @@ With these settings, $n > 11903$; we would need a dataset of more than 11903 exa
 
 ### Conclusion
 
-In the haste to claim the presence or absence of bias in models, the uncertainty in estimating bias is often overlooked in the literature. A model's bias is often thought of as a single number, even though this number is ultimately an estimate and not by any means the final word on whether the model is or is not biased.
+In the haste to claim the presence or absence of bias in models, the uncertainty in estimating bias is often overlooked in the literature. A model's bias is often thought of as a single number, even though this number is ultimately an estimate and not the final word on whether the model is or is not biased.
 
 We proposed a method called Bernstein-bounded unfairness for capturing this uncertainty using confidence intervals. To faithfully reflect the range of possible conclusions, we recommend that NLP practitioners measuring bias not only report their bias estimate but also this confidence interval.
 
