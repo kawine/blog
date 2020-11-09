@@ -7,11 +7,13 @@ paper-link: https://www.aclweb.org/anthology/2020.acl-main.262/
 link-text: (see paper)
 categories: NLP
 ---
-Countless studies have found that "bias" -- defined in manifold ways -- pervades the [embeddings](https://arxiv.org/abs/1904.03310) and [predictions](https://arxiv.org/abs/1804.09301) of the black-box models that dominate natural language processing (NLP). This, in turn, has led to a wave of work on how to "[debias](http://papers.nips.cc/paper/6228-man-is-to-computer-programmer-as-woman-is-to-homemaker-d)" models, only for others to find ways in which debiased models [are still biased](https://arxiv.org/abs/1903.03862), and so on.
+Countless studies have found that "bias" -- typically with respect to race and gender -- pervades the [embeddings](https://arxiv.org/abs/1904.03310) and [predictions](https://arxiv.org/abs/1804.09301) of the black-box models that dominate natural language processing (NLP). For example, the language model [GPT-3](https://en.wikipedia.org/wiki/GPT-3), trained on vast amounts of text from the Internet, can generate [stunningly offensive rants]((https://www.technologyreview.com/2020/10/23/1011116/chatbot-gpt3-openai-facebook-google-safety-fix-racist-sexist-language-ai/)) when given the right prompt.
 
-But are these claims of NLP models being biased (or unbiased) being made with enough evidence?
+This, in turn, has led to a wave of work on how to "[debias](http://papers.nips.cc/paper/6228-man-is-to-computer-programmer-as-woman-is-to-homemaker-d)" models, only for others to find ways in which debiased models [are still biased](https://arxiv.org/abs/1903.03862), and so on.
 
-Consider the sentence _"The doctor gave instructions to the nurse before she left."_ If a [co-reference resolution system](https://en.wikipedia.org/wiki/Coreference#Coreference_resolution) mistakenly thinks "she" refers to the nurse in this instance, is it gender-biased? Possibly -- but it may also make mistakes in the other direction with equal frequency (e.g., thinking "he" refers to a nurse when it doesn't). What if the system makes gender-stereotypical mistakes on not one sentence, but 100, or 1000? Then we could be more confident in claiming that it's biased.
+But are these claims of NLP models being biased (or unbiased) being made with enough evidence? 
+
+Consider the sentence _"The doctor gave instructions to the nurse before she left."_ A [co-reference resolution system](https://en.wikipedia.org/wiki/Coreference#Coreference_resolution), tasked with finding which person the pronoun "she" is referring to[^1], may incorrectly predict that it's the nurse. Does this incorrect prediction -- which conforms to gender stereotypes -- mean that the system is gender-biased? Possibly -- but it may also make mistakes in the other direction with equal frequency (e.g., thinking "he" refers to a nurse when it doesn't). What if the system makes gender-stereotypical mistakes on not one sentence, but 100, or 1000? Then we could be more confident in claiming that it's biased.
 
 In my ACL 2020 paper, "[Measuring Fairness under Uncertainty with Bernstein Bounds](https://www.aclweb.org/anthology/2020.acl-main.262/)", I go over how, in the haste to claim the presence or absence of bias, the inherent uncertainty in measuring bias is often overlooked in the literature:
 
@@ -26,19 +28,21 @@ Although this problem can exist with any kind of model, we focus on a remedy for
 
 ### Bernstein-Bounded Unfairness
 
-A bias estimate, made using a small sample of annotated data, likely differs from the true bias (i.e., at the population-level). How can we express our uncertainty about the estimate? We propose a method called Bernstein-bounded unfairness that translates this uncertainty into a confidence interval using [Bernstein inequalities](https://en.wikipedia.org/wiki/Bernstein_inequalities_(probability_theory)).
+A bias estimate, made using a small sample of annotated data, likely differs from the true bias (i.e., at the population-level). How can we express our uncertainty about the estimate? We propose a method called Bernstein-bounded unfairness that translates this uncertainty into a confidence interval[^2].
 
-Let's say we want to measure whether some protected group $A$ is being discriminated against, relative to some unprotected group $B$. They occur in the population with frequency $\gamma_A, \gamma_B$ respectively. We need
+Let's say we want to measure whether some protected group $A$ is being discriminated against by some classifier, relative to some unprotected group $B$. They occur in the population with frequency $\gamma_A, \gamma_B$ respectively. We need
 
-- an annotation function that maps each example $x$ to $A, B,$ or neither
+- An annotation function $f$ that maps each example $x$ to $A, B,$ or neither. Note that the annotation function maps inputs to the groups, not to the output space $Y$. For example, if we wanted to study how a sentiment classifier performed across different racial groups, then the inputs $x$ would be sentences, labels $y$ would be the sentiment, and the annotation function $f$ might map $x$ to \{white, non-white\} depending on the racial group of the sentence author.
 
-- a cost function $c : (y, \hat{y}) \to [0,C]$ that describes the cost of predicting $\hat{y}$ when the true label is $y$, where $C$ is the maximum possible cost
+- A cost function $c : (y, \hat{y}) \to [0,C]$ that describes the cost of incorrectly predicting $\hat{y}$ when the true label is $y$, where $C$ is the maximum possible cost. Since a model making an incorrect prediction for $x$ is an undesirable outcome for the group that $x$ belongs to, we frame this as a cost that must be borne by the group.
 
-We want to choose these functions such that our bias metric of choice -- which we call the *groupwise disparity* $\delta(f,c)$ -- can be expressed as the difference in expected cost borne by the protected and unprotected groups. Given a model that makes predictions $\hat{y}_a$ for $x_a \in A$ and $\hat{y}_b$ for $x_b \in B$:
+We want to choose these functions such that our bias metric of choice -- which we call the *groupwise disparity* $\delta(f,c)$ -- can be expressed as the difference in expected cost borne by the protected and unprotected groups. Given a model that makes predictions $\hat{y}_a$ for $x_a \in A$ and $\hat{y}_b$ for $x_b \in B$, we want to express the bias as:
 
 $$\delta(f,c) = \mathbb{E}_a[c(y_a, \hat{y}_a)] - \mathbb{E}_b[c(y_b, \hat{y}_b)]$$
 
-If the protected group is incurring higher costs in expectation, it is being biased against. So what might these cost and annotation functions look like for some canonical bias metrics?
+If the protected group is incurring higher costs in expectation, it is being biased against. For example, if we want to determine whether a classifier is more accurate on the unprotected group $B$, then we would set the cost function to be the 1-0 loss (1 for an incorrect prediction, 0 for a correct one). If $B$ has a lower cost on average then $A$, then it would mean that the classifier is more accurate on $A$.
+
+What might these cost and annotation functions look like for some canonical bias metrics?
 
 - Demographic parity requires that the probability of a positive outcome (i.e., $\text{Pr}[\hat{y} = 1]$) be equal across groups. Here, the cost $c(y, \hat{y}) = (1 - \hat{y})$ and there are no restrictions on what the annotation function can be.
 
@@ -51,24 +55,32 @@ t &= \frac{B + \sqrt{B^2 - 8 n \sigma^2 \log \left[\frac{1}{2} (1 - \rho) \right
 \text{where } B &= -\frac{2 C}{3 \gamma} \log \left[ \frac{1}{2} (1 - \rho) \right],  \gamma = \min(\gamma_A, \gamma_B)
 \end{aligned}$$
 
-For example, if we set $\rho = 0.95$, we could claim with 95% confidence that the true bias experienced by the protected group lies in the interval $[ \hat{\delta} - t, \hat{\delta} + t]$, where $\hat{\delta}$ is our bias estimate.
+If we set $\rho = 0.95$, we could claim with 95% confidence that the true bias experienced by the protected group lies in the interval $[ \hat{\delta} - t, \hat{\delta} + t]$, where $\hat{\delta}$ is our bias estimate.
 
 
 ### Why We Need Bigger Datasets 
 
 If we want to say with 95% confidence that a classifier is biased *to some extent* -- but want to spend as little time annotating data as possible -- we need to find the smallest $n$ such that $0 \not\in [ \hat{\delta} - t, \hat{\delta} + t]$. We can do this by working backwards from the formula for $t$ given above (see paper for details).
 
-Let's go back to our original example. Say we have a dataset of 500 examples for measuring gender bias in co-reference resolution systems, to test whether a model does better on gender-stereotypical examples (e.g., a female nurse) than non-gender-stereotypical examples (e.g., a male nurse). 
+Let's go back to our original example. Say we want to figure out whether a co-reference resolution system, tasked with matching pronouns to the nouns they refer to, is gender-biased or not. We have a dataset of 500 examples to test whether the model does better on gender-stereotypical examples (e.g., a female nurse) than non-gender-stereotypical examples (e.g., a male nurse). 
 
 On this dataset, our bias estimate for a model we're evaluating is $\bar{\delta} = 0.05$. Is this enough to claim with 95% confidence that the model is gender-biased?
 
 In this scenario $C = 1, \bar{\delta} = 0.05, \rho = 0.95$. We assume that there are equally many stereotypical and non-stereotypical examples and that the variance is maximal, so $\gamma = 0.5, \sigma^2 = 4$. 
 
-With these settings, $n > 11903$; we would need a dataset of more than 11903 examples to claim with 95% confidence that the co-reference resolution system is gender-biased. This is roughly 3.8 times larger than [WinoBias](https://arxiv.org/abs/1804.06876), the largest dataset currently available for this purpose. As seen below, we could only use WinoBias if $\bar{\delta} = 0.0975$ -- that is, if the sample bias were almost twice as high.
+With these settings, $n > 11903$; we would need a dataset of more than 11903 examples to claim with 95% confidence that the co-reference resolution system is gender-biased. This is roughly 3.8 times larger than [WinoBias](https://arxiv.org/abs/1804.06876), the largest dataset currently available for this purpose. We could only use WinoBias if $\bar{\delta} = 0.0975$ -- that is, if the sample bias were almost twice as high.
 
 <p align="center">
 	<img src="{{ site.url }}/blog/assets/bbu_3.png" style="width: 60%">
+    <figcaption>As seen above, the WinoBias dataset cannot be used to make claims of bias with 95% confidence unless the sample bias is egregiously high.</figcaption>
 </p>
+
+
+### Conclusion
+
+In the haste to claim the presence or absence of bias in models, the uncertainty in estimating bias is often overlooked in the literature. A model's bias is often thought of as a single number, even though this number is ultimately an estimate and not by any means the final word on whether the model is or is not biased.
+
+We proposed a method called Bernstein-bounded unfairness for capturing this uncertainty using confidence intervals. To faithfully reflect the range of possible conclusions, we recommend that NLP practitioners measuring bias not only report their bias estimate but also this confidence interval.
 
 What if we want to catch more subtle bias? Although it may be possible to derive tighter confidence intervals, what we really need are larger bias-specific datasets. The datasets we currently have are undoubtedly helpful, but they need to be much larger in order to diagnose biases with confidence.
 
@@ -95,4 +107,11 @@ If you found this post useful, you can cite our paper as follows:
 <p class="small-text"> 
 Many thanks to Krishnapriya Vishnubhotla and Kaitlyn Zhou for their feedback on this blog post! 
 </p>
+
+
+##### Footnotes
+
+[^1]: The goal of coreference resolution more broadly is to find all expressions that refer to the same entity in a text. For example, in "I gave my mother Sally a gift for her birthday.", the terms "my mother", "Sally", and "her" all refer to the same entity.
+
+[^2]: We use [Bernstein's inequality](https://en.wikipedia.org/wiki/Bernstein_inequalities_(probability_theory)) to derive the confidence intervals, hence the name Bernstein-bounded unfairness. This inequality tells us with what probability the average of $n$ independent random variables will be within a constant $t$ of their true mean $\mu$.
 
