@@ -13,7 +13,7 @@ This, in turn, has led to a wave of work on how to "[debias](http://papers.nips.
 
 But are these claims of NLP models being biased (or unbiased) being made with enough evidence? 
 
-Consider the sentence _"The doctor gave instructions to the nurse before she left."_ A [co-reference resolution system](https://en.wikipedia.org/wiki/Coreference#Coreference_resolution), tasked with finding which person the pronoun "she" is referring to[^1], may incorrectly predict that it's the nurse. Does this incorrect prediction -- which conforms to gender stereotypes -- mean that the system is gender-biased? Possibly -- but it may also make mistakes in the other direction with equal frequency (e.g., thinking "he" refers to a nurse when it doesn't). What if the system makes gender-stereotypical mistakes on not one sentence, but 100, or 1000? Then we could be more confident in claiming that it's biased.
+Consider the sentence _"The doctor gave instructions to the nurse before she left."_ A [co-reference resolution system](https://en.wikipedia.org/wiki/Coreference#Coreference_resolution), tasked with finding which person the pronoun "she" is referring to[^1], may incorrectly predict that it's the nurse. Does this incorrect prediction -- which conforms to gender stereotypes that doctors are usually male -- mean that the system is gender-biased? Possibly -- but it may also make mistakes in the other direction with equal frequency (e.g., thinking "he" refers to a nurse when it doesn't). What if the system makes gender-stereotypical mistakes on not one sentence, but 100, or 1000? Then we could be more confident in claiming that it's biased.
 
 In my ACL 2020 paper, "[Measuring Fairness under Uncertainty with Bernstein Bounds](https://www.aclweb.org/anthology/2020.acl-main.262/)", I go over how, in the haste to claim the presence or absence of bias, the inherent uncertainty in measuring bias is often overlooked in the literature:
 
@@ -30,7 +30,7 @@ Although this problem can exist with any kind of model, we focus on a remedy for
 
 A bias estimate, made using a small sample of data, likely differs from the true bias (i.e., at the population-level). How can we express our uncertainty about the estimate? We propose a method called Bernstein-bounded unfairness that translates this uncertainty into a confidence interval[^2].
 
-Let's say we want to measure whether some protected group $A$ is being discriminated against by some classifier, relative to some unprotected group $B$. They occur in the population with frequency $\gamma_A, \gamma_B$ respectively. We need
+Let's say we want to measure whether some [protected group](https://en.wikipedia.org/wiki/Protected_group) $A$ -- that is legally protected due to an attribute such as race or gender -- is being discriminated against by some classifier, relative to some unprotected group $B$. They occur in the population with frequency $\gamma_A, \gamma_B$ respectively. We need
 
 - An annotation function $f$ that maps each example $x$ to $A, B,$ or neither. Note that the annotation function maps inputs to the protected/unprotected groups, not to the output space $Y$. For example, if we wanted to study how a sentiment classifier performed across different racial groups, then the inputs $x$ would be sentences, labels $y$ would be the sentiment, and the annotation function $f$ might map $x$ to \{white, non-white\} depending on the racial group of the sentence author.
 
